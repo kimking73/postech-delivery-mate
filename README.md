@@ -6,9 +6,9 @@ POSTECH 구성원 전용 배달음식 공동구매 매칭 앱입니다(앱 이�
 ## 문서
 | 문서 | 내용 |
 |---|---|
-| [기획서](docs/기획서.md) | 기능 범위(MUST/SHOULD/LATER), POSTECH 메일 인증 정책, 성공 지표 |
-| [아키텍처](docs/아키텍처.md) | 구현 기준: 시스템 구성, DB 스키마, RPC 명세, RLS, 채팅·푸시, 환경, 보안 |
-| [타임라인](docs/timeline.md) | 3인(FE·CL·SV) 10일 개발 일정, 작업 39개와 상태 (`docs/tasks/tasks.json`에서 생성) |
+| [기획서.md](docs/기획서.md) | 기능 범위(MUST/SHOULD/LATER), POSTECH 메일 인증 정책, 성공 지표 |
+| [아키텍처.md](docs/아키텍처.md) | 구현 기준: 시스템 구성, DB 스키마, RPC 명세, RLS, 채팅·푸시, 환경, 보안 |
+| [타임라인.md](docs/timeline.md) | 3인(FE·CL·SV) 10일 개발 일정, 작업 39개와 상태 (`docs/tasks/tasks.json`에서 생성) |
 | [CLAUDE.md](CLAUDE.md) | Claude Code 작업 규칙: 문서 우선순위, 역할 경계, Git 규칙 |
 | [작업 태그 절차](.claude/skills/task/SKILL.md) | `SV5 해줘`처럼 태그로 지시할 때 AI가 따르는 절차 |
 
