@@ -1,18 +1,19 @@
 # 배달메이트 2주 개발 타임라인
 
+> ⚠️ 이 파일은 `docs/tasks/tasks.json`에서 생성된다. 직접 고치지 말고 `python3 docs/tasks/task.py gen`을 실행한다.  
 > 기준 문서: [기획서](./기획서.md), [아키텍처](./아키텍처.md)  
 > 기간: 10일(Day 1–10), 순서 기준. 실제 시작일은 팀 일정에 맞춰 정한다.  
 > 목표: Day 10에 MUST 기능을 갖춘 베타 빌드를 TestFlight / Play 내부 테스트에 올린다. 스토어 심사와 공개 베타는 그다음 주.  
-> 시각화(편집 가능): 아티팩트 "배달메이트 2주 개발 타임라인". 작업을 고치면 이 문서도 함께 갱신한다.
+> 사람용 현황판: 아티팩트 "배달메이트 2주 개발 타임라인"(체크는 사람이 직접, AI는 이 저장소의 tasks.json만 본다).
 
 ## 레인(역할)
 
-| 레인 | 담당 범위 | 작업 수 |
+| 레인 | 담당 범위 | 수정 허용 경로(기본) |
 |---|---|---|
-| **FE 프론트엔드** | 화면, 디자인 시스템, 컴포넌트, 폼 UI, 빈·로딩·에러 상태 | 11 |
-| **CL 클라이언트** | Expo·EAS, Supabase 연동, 세션, 데이터 훅, 실시간, 푸시, 딥링크 | 9 |
-| **SV 서버** | 스키마, RLS, RPC, 트리거·cron, Auth, Edge Function, 테스트·CI | 11 |
-| **공동** | 킥오프, 계약 고정, 데모, 동결, QA, 베타 | 8 |
+| **FE 프론트엔드** | 화면, 디자인 시스템, 컴포넌트, 폼 UI, 빈·로딩·에러 상태 | `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**` |
+| **CL 클라이언트** | Expo·EAS, Supabase 연동, 세션, 데이터 훅, 실시간, 푸시, 딥링크 | `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**` |
+| **SV 서버** | 스키마, RLS, RPC, 트리거·cron, Auth, Edge Function, 테스트·CI | `supabase/**`, `.github/workflows/**` |
+| **공동** | 킥오프, 계약 고정, 데모, 동결, QA, 베타 | `docs/**` |
 
 **경계 규칙**: FE는 CL이 만든 훅만 쓴다(서버가 준비되기 전에는 같은 타입의 목 훅). CL은 DB를 직접 고치지 않고 SV에 요청한다. SV는 RPC를 바꿀 때 [아키텍처 §4](./아키텍처.md)를 먼저 고치고 공지한다.
 
@@ -26,6 +27,52 @@
 | Day 7 | J5 채팅 E2E | 시나리오 4종 통과 |
 | Day 8 | J6 기능 동결 | MUST 항목 전부 main에 있음 |
 | Day 10 | J8 베타 빌드·회고 | 테스터에게 설치 링크 전달 |
+
+## 작업 상태
+
+한 줄에 작업 하나. 상태는 `task.py set`으로만 바꾼다.
+
+| 태그 | 작업 | 레인 | 기간 | 선행 | 상태 |
+|---|---|---|---|---|---|
+| FE1 | 디자인 토큰·와이어프레임 | FE | Day 1 | J1 | ⬜ todo |
+| FE2 | UI 키트 | FE | Day 2 | FE1 | ⬜ todo |
+| FE3 | 인증 화면 UI | FE | Day 2–3 | FE2, CL2 | ⬜ todo |
+| FE4 | 온보딩 화면 | FE | Day 3 | FE2, CL2 | ⬜ todo |
+| FE5 | 피드·글 작성 UI | FE | Day 4 | FE2 | ⬜ todo |
+| FE6 | 상세·방 목록 UI | FE | Day 5 | FE5 | ⬜ todo |
+| FE7 | 채팅 화면 | FE | Day 6 | FE6 | ⬜ todo |
+| FE8 | 송금 체크 바·알림 설정 | FE | Day 7 | FE7 | ⬜ todo |
+| FE9 | 신고·차단·설정 화면 | FE | Day 8 | FE2 | ⬜ todo |
+| FE10 | UI 다듬기 | FE | Day 9 | J6 | ⬜ todo |
+| FE11 | QA 버그 수정·스크린샷 | FE | Day 10 | J7 | ⬜ todo |
+| CL1 | Expo 프로젝트·기반 | CL | Day 1 | J1 | ⬜ todo |
+| CL2 | 인증 가드·타입·목 훅 | CL | Day 2 | CL1, SV3 | ⬜ todo |
+| CL3 | 인증 훅·실기기 E2E | CL | Day 3–4 | CL2, SV4 | ⬜ todo |
+| CL4 | 피드·글·참여 훅 | CL | Day 4–5 | CL3, SV5 | ⬜ todo |
+| CL5 | 실시간 채팅 클라이언트 | CL | Day 6–7 | CL4, SV7 | ⬜ todo |
+| CL6 | 푸시 클라이언트 | CL | Day 7 | CL5, SV8 | ⬜ todo |
+| CL7 | 신고·차단 훅·카카오 공유 | CL | Day 8 | CL4, SV9 | ⬜ todo |
+| CL8 | 폴백 웹·관측 도구 | CL | Day 9 | CL7 | ⬜ todo |
+| CL9 | 베타 빌드 배포 | CL | Day 10 | J7, SV10 | ⬜ todo |
+| SV1 | Supabase 환경·핵심 테이블 | SV | Day 1 | J1 | ⬜ todo |
+| SV2 | 도메인·Resend DNS | SV | Day 1 | — | ⬜ todo |
+| SV3 | 나머지 테이블·RPC 스텁·Auth 설정 | SV | Day 2 | SV1, SV2 | ⬜ todo |
+| SV4 | 프로필 RPC·RLS·메일 실측 | SV | Day 3 | SV3 | ⬜ todo |
+| SV5 | 글·참여 RPC | SV | Day 4 | SV4 | ⬜ todo |
+| SV6 | 상태 전이·cron | SV | Day 5 | SV5 | ⬜ todo |
+| SV7 | 채팅 RPC·방송 | SV | Day 6 | SV6 | ⬜ todo |
+| SV8 | 송금 RPC·푸시 파이프라인 | SV | Day 7 | SV7 | ⬜ todo |
+| SV9 | 신고·제재·탈퇴·관리자 알림 | SV | Day 8 | SV8 | ⬜ todo |
+| SV10 | 보안 점검·production 구성 | SV | Day 9 | SV9 | ⬜ todo |
+| SV11 | 심사 계정·지표·모니터링 | SV | Day 10 | SV10 | ⬜ todo |
+| J1 | 킥오프 | J | Day 1 | — | ⬜ todo |
+| J2 | 계약 고정 | J | Day 2 | SV3, CL2, FE2 | ⬜ todo |
+| J3 | 인증 E2E 확인 | J | Day 4 | CL3, FE3, FE4, SV4 | ⬜ todo |
+| J4 | 1주차 데모 | J | Day 5 | CL4, FE6, SV6 | ⬜ todo |
+| J5 | 채팅 E2E | J | Day 7 | CL5, CL6, FE8, SV8 | ⬜ todo |
+| J6 | 기능 동결 | J | Day 8 | FE9, CL7, SV9 | ⬜ todo |
+| J7 | 통합 QA | J | Day 9 | J6, FE10, CL8, SV10 | ⬜ todo |
+| J8 | 베타 빌드·회고 | J | Day 10 | CL9, FE11, SV11 | ⬜ todo |
 
 ## 순서별 보기
 
@@ -61,6 +108,8 @@
 |---|---|---|
 | theme.ts, 와이어프레임, 화면 흐름도 | J1 킥오프 | CL·SV와 화면별 필요 데이터 대조 완료 |
 
+참조: 아키텍처 §9, 기획서 §1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE2 · UI 키트  
 `Day 2` · 1일 · 1주차
 
@@ -74,6 +123,8 @@
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | src/components/ui/* | FE1 디자인 토큰·와이어프레임 | 카탈로그 화면에서 전 컴포넌트가 두 테마로 표시 |
+
+참조: 아키텍처 §9 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
 
 #### FE3 · 인증 화면 UI  
 `Day 2–3` · 2일 · 1주차
@@ -90,6 +141,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 |---|---|---|
 | app/(auth)/* 화면 | FE2 UI 키트, CL2 인증 가드·타입·목 훅 | 목 훅으로 가입 → 코드 입력 → 로그인 화면 전환이 동작 |
 
+참조: 아키텍처 §3-3, 기획서 §1-1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE4 · 온보딩 화면  
 `Day 3` · 1일 · 1주차
 
@@ -104,6 +157,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | permissions, terms, profile-setup 화면 | FE2 UI 키트, CL2 인증 가드·타입·목 훅 | 목 훅으로 온보딩 전체 흐름 통과 |
+
+참조: 아키텍처 §3-3, 기획서 §1-1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
 
 #### FE5 · 피드·글 작성 UI  
 `Day 4` · 1일 · 1주차
@@ -120,6 +175,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 |---|---|---|
 | (tabs)/index, post/new 화면 | FE2 UI 키트 | 목 데이터로 피드 스크롤과 글 작성 제출 동작 |
 
+참조: 아키텍처 §2-2, 아키텍처 §4, 기획서 §1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE6 · 상세·방 목록 UI  
 `Day 5` · 1일 · 1주차
 
@@ -134,6 +191,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | post/[id], (tabs)/rooms 화면 | FE5 피드·글 작성 UI | 상태별 버튼과 방장 메뉴가 목 데이터로 전환 |
+
+참조: 아키텍처 §4-2, 아키텍처 §4 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
 
 #### FE7 · 채팅 화면  
 `Day 6` · 1일 · 2주차
@@ -150,6 +209,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 |---|---|---|
 | post/[id]/chat 화면 | FE6 상세·방 목록 UI | 목 메시지 500개 스크롤이 끊김 없이 동작, iOS·Android 키보드 정상 |
 
+참조: 아키텍처 §6 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE8 · 송금 체크 바·알림 설정  
 `Day 7` · 1일 · 2주차
 
@@ -163,6 +224,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 채팅 상단 송금 바, settings/notifications 화면 | FE7 채팅 화면 | 송금 상태 3단계가 화면에 구분되어 표시 |
+
+참조: 아키텍처 §4-2, 아키텍처 §7-1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
 
 #### FE9 · 신고·차단·설정 화면  
 `Day 8` · 1일 · 2주차
@@ -179,6 +242,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 |---|---|---|
 | 신고 시트, settings/* 화면 | FE2 UI 키트 | 글·메시지·사용자 세 곳에서 신고 진입 가능 |
 
+참조: 아키텍처 §4-3, 아키텍처 §4 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE10 · UI 다듬기  
 `Day 9` · 1일 · 2주차
 
@@ -193,6 +258,8 @@ POSTECH 메일 가입부터 비밀번호 재설정까지의 화면을 만듦.
 |---|---|---|
 | UI 수정 PR | J6 기능 동결 | 점검표 전 항목 통과 |
 
+참조: 아키텍처 §9 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
+
 #### FE11 · QA 버그 수정·스크린샷  
 `Day 10` · 1일 · 2주차
 
@@ -206,6 +273,8 @@ QA에서 나온 UI 버그를 고치고 스토어 자료를 준비함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 스크린샷 세트, 수정 빌드 | J7 통합 QA | UI 치명 버그 0건 |
+
+참조: 기획서 §1 · 수정 허용: `app/**`, `src/components/**`, `src/features/*/components/**`, `src/constants/theme.ts`, `src/constants/strings.ts`, `assets/**`
 
 ### CL 클라이언트
 
@@ -225,6 +294,8 @@ QA에서 나온 UI 버그를 고치고 스토어 자료를 준비함.
 |---|---|---|
 | 앱 저장소 골격, eas.json | J1 킥오프 | 3명 모두 dev client로 앱 실행 |
 
+참조: 아키텍처 §9, 아키텍처 §11 · 수정 허용: `**`
+
 #### CL2 · 인증 가드·타입·목 훅  
 `Day 2` · 1일 · 1주차
 
@@ -239,6 +310,8 @@ FE가 서버 없이도 개발할 수 있게 계약을 코드로 만듦.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | types/database.ts, 목 훅, errors.ts | CL1 Expo 프로젝트·기반, SV3 나머지 테이블·RPC 스텁·Auth 설정 | FE가 목 훅만으로 화면을 그릴 수 있음 |
+
+참조: 아키텍처 §3-3, 아키텍처 §4, 아키텍처 §4-4 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
 
 #### CL3 · 인증 훅·실기기 E2E  
 `Day 3–4` · 2일 · 1주차
@@ -256,6 +329,8 @@ FE가 서버 없이도 개발할 수 있게 계약을 코드로 만듦.
 |---|---|---|
 | features/auth 훅, limits.ts | CL2 인증 가드·타입·목 훅, SV4 프로필 RPC·RLS·메일 실측 | 실기기에서 POSTECH 메일 가입·로그인, 다른 도메인 거부 |
 
+참조: 아키텍처 §3, 기획서 §1-1 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
+
 #### CL4 · 피드·글·참여 훅  
 `Day 4–5` · 2일 · 1주차
 
@@ -271,6 +346,8 @@ FE가 서버 없이도 개발할 수 있게 계약을 코드로 만듦.
 |---|---|---|
 | features/posts 훅 | CL3 인증 훅·실기기 E2E, SV5 글·참여 RPC | staging에서 글 작성 → 다른 계정 참여 → 방 목록 표시 |
 
+참조: 아키텍처 §4, 아키텍처 §4-1, 아키텍처 §4-2 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
+
 #### CL5 · 실시간 채팅 클라이언트  
 `Day 6–7` · 2일 · 2주차
 
@@ -285,6 +362,8 @@ Broadcast 채널로 실시간 채팅을 동작하게 함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | features/chat 훅 | CL4 피드·글·참여 훅, SV7 채팅 RPC·방송 | 기기 2대에서 실시간 송수신, 백그라운드 30초 후 복구 |
+
+참조: 아키텍처 §6 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
 
 #### CL6 · 푸시 클라이언트  
 `Day 7` · 1일 · 2주차
@@ -302,6 +381,8 @@ Broadcast 채널로 실시간 채팅을 동작하게 함.
 |---|---|---|
 | features/notifications | CL5 실시간 채팅 클라이언트, SV8 송금 RPC·푸시 파이프라인 | iOS·Android 실기기에서 알림 수신과 탭 이동 |
 
+참조: 아키텍처 §7 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
+
 #### CL7 · 신고·차단 훅·카카오 공유  
 `Day 8` · 1일 · 2주차
 
@@ -316,6 +397,8 @@ Broadcast 채널로 실시간 채팅을 동작하게 함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | features/moderation 훅, lib/kakao.ts, lib/linking.ts | CL4 피드·글·참여 훅, SV9 신고·제재·탈퇴·관리자 알림 | 카카오톡 공유 링크로 상세 화면이 열림 |
+
+참조: 아키텍처 §4-3, 아키텍처 §10 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
 
 #### CL8 · 폴백 웹·관측 도구  
 `Day 9` · 1일 · 2주차
@@ -332,6 +415,8 @@ Broadcast 채널로 실시간 채팅을 동작하게 함.
 |---|---|---|
 | web/ 배포, Sentry·PostHog 연결 | CL7 신고·차단 훅·카카오 공유 | 앱 미설치 기기에서 링크 → 폴백 페이지, Sentry에 테스트 오류 수신 |
 
+참조: 아키텍처 §10, 아키텍처 §12 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
+
 #### CL9 · 베타 빌드 배포  
 `Day 10` · 1일 · 2주차
 
@@ -346,6 +431,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 베타 빌드 | J7 통합 QA, SV10 보안 점검·production 구성 | 테스터 기기에 설치 후 전체 흐름 동작 |
+
+참조: 아키텍처 §11 · 수정 허용: `app/_layout.tsx`, `app.config.ts`, `eas.json`, `package.json`, `src/lib/**`, `src/features/*/api.ts`, `src/features/*/hooks.ts`, `src/features/*/schema.ts`, `src/constants/limits.ts`, `src/types/**`, `web/**`
 
 ### SV 서버
 
@@ -364,6 +451,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | supabase/migrations 0001–0002 | J1 킥오프 | supabase db reset이 오류 없이 끝남 |
 
+참조: 아키텍처 §2, 아키텍처 §11 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV2 · 도메인·Resend DNS  
 `Day 1` · 1일 · 1주차
 
@@ -377,6 +466,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 발신 도메인 | 없음 | Resend 대시보드에서 도메인 Verified |
+
+참조: 아키텍처 §0, 아키텍처 §3-2 · 수정 허용: `supabase/**`, `.github/workflows/**`
 
 #### SV3 · 나머지 테이블·RPC 스텁·Auth 설정  
 `Day 2` · 1일 · 1주차
@@ -394,6 +485,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | migrations 0003–0005 스텁, Auth 설정, GitHub Actions | SV1 Supabase 환경·핵심 테이블, SV2 도메인·Resend DNS | CL이 타입을 생성해 목 훅 작성 시작 |
 
+참조: 아키텍처 §2-2, 아키텍처 §2-3, 아키텍처 §3, 아키텍처 §4, 아키텍처 §11 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV4 · 프로필 RPC·RLS·메일 실측  
 `Day 3` · 1일 · 1주차
 
@@ -408,6 +501,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | RLS 정책, 인증 pgTAP | SV3 나머지 테이블·RPC 스텁·Auth 설정 | pgTAP 통과, POSTECH 메일함에 1분 안에 코드 도착 |
+
+참조: 아키텍처 §3-1, 아키텍처 §4, 아키텍처 §5 · 수정 허용: `supabase/**`, `.github/workflows/**`
 
 #### SV5 · 글·참여 RPC  
 `Day 4` · 1일 · 1주차
@@ -425,6 +520,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | posts·participants RPC, seed | SV4 프로필 RPC·RLS·메일 실측 | 동시성 pgTAP 통과 |
 
+참조: 아키텍처 §4, 아키텍처 §4-1, 아키텍처 §4-2 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV6 · 상태 전이·cron  
 `Day 5` · 1일 · 1주차
 
@@ -439,6 +536,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 상태 RPC, cron 작업 | SV5 글·참여 RPC | 마감 시각 1분 뒤 글이 closed로 바뀜 |
+
+참조: 아키텍처 §4-2, 아키텍처 §8 · 수정 허용: `supabase/**`, `.github/workflows/**`
 
 #### SV7 · 채팅 RPC·방송  
 `Day 6` · 1일 · 2주차
@@ -456,6 +555,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | 채팅 RPC, 방송 트리거 | SV6 상태 전이·cron | 비참여자는 채널 구독이 거부됨 |
 
+참조: 아키텍처 §6, 아키텍처 §5 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV8 · 송금 RPC·푸시 파이프라인  
 `Day 7` · 1일 · 2주차
 
@@ -470,6 +571,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 송금 RPC, push-worker | SV7 채팅 RPC·방송 | 메시지 10개 연속 전송 시 알림 1건으로 묶여 도착 |
+
+참조: 아키텍처 §7 · 수정 허용: `supabase/**`, `.github/workflows/**`
 
 #### SV9 · 신고·제재·탈퇴·관리자 알림  
 `Day 8` · 1일 · 2주차
@@ -487,6 +590,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | moderation RPC, delete-account, admin-alert | SV8 송금 RPC·푸시 파이프라인 | 정지 계정의 글 작성·참여가 SANCTIONED로 거부 |
 
+참조: 아키텍처 §4-3, 아키텍처 §3-3 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV10 · 보안 점검·production 구성  
 `Day 9` · 1일 · 2주차
 
@@ -502,6 +607,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | production 환경 | SV9 신고·제재·탈퇴·관리자 알림 | production에서 가입·로그인 1회 성공 |
 
+참조: 아키텍처 §13, 아키텍처 §11 · 수정 허용: `supabase/**`, `.github/workflows/**`
+
 #### SV11 · 심사 계정·지표·모니터링  
 `Day 10` · 1일 · 2주차
 
@@ -515,6 +622,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 심사 계정, 지표 뷰, 알림 설정 | SV10 보안 점검·production 구성 | Slack에 테스트 알림 수신 |
+
+참조: 아키텍처 §12, 기획서 §1-1 · 수정 허용: `supabase/**`, `.github/workflows/**`
 
 ### 공동
 
@@ -532,6 +641,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | 협업 규칙 | 없음 | 3명 모두 저장소·콘솔 접근 가능 |
 
+참조: timeline 메모 · 수정 허용: `docs/**`
+
 #### J2 · 계약 고정  
 `Day 2` · 1일 · 1주차
 
@@ -545,6 +656,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 고정된 계약 | SV3 나머지 테이블·RPC 스텁·Auth 설정, CL2 인증 가드·타입·목 훅, FE2 UI 키트 | 3명이 같은 타입 파일로 개발 |
+
+참조: timeline 메모 · 수정 허용: `docs/**`
 
 #### J3 · 인증 E2E 확인  
 `Day 4` · 1일 · 1주차
@@ -560,6 +673,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | 인증 확인 기록 | CL3 인증 훅·실기기 E2E, FE3 인증 화면 UI, FE4 온보딩 화면, SV4 프로필 RPC·RLS·메일 실측 | iOS·Android 각 1대에서 통과 |
 
+참조: timeline 메모 · 수정 허용: `docs/**`
+
 #### J4 · 1주차 데모  
 `Day 5` · 1일 · 1주차
 
@@ -573,6 +688,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 버그 목록, 2주차 범위 | CL4 피드·글·참여 훅, FE6 상세·방 목록 UI, SV6 상태 전이·cron | 데모 시나리오 끊김 없이 동작 |
+
+참조: timeline 메모 · 수정 허용: `docs/**`
 
 #### J5 · 채팅 E2E  
 `Day 7` · 1일 · 2주차
@@ -589,6 +706,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | 채팅 확인 기록 | CL5 실시간 채팅 클라이언트, CL6 푸시 클라이언트, FE8 송금 체크 바·알림 설정, SV8 송금 RPC·푸시 파이프라인 | 시나리오 4종 통과 |
 
+참조: timeline 메모 · 수정 허용: `docs/**`
+
 #### J6 · 기능 동결  
 `Day 8` · 1일 · 2주차
 
@@ -602,6 +721,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 동결 빌드 | FE9 신고·차단·설정 화면, CL7 신고·차단 훅·카카오 공유, SV9 신고·제재·탈퇴·관리자 알림 | MUST 항목 전부 main에 있음 |
+
+참조: timeline 메모 · 수정 허용: `docs/**`
 
 #### J7 · 통합 QA  
 `Day 9` · 1일 · 2주차
@@ -618,6 +739,8 @@ production 빌드를 테스터에게 배포함.
 |---|---|---|
 | QA 결과표, 버그 목록 | J6 기능 동결, FE10 UI 다듬기, CL8 폴백 웹·관측 도구, SV10 보안 점검·production 구성 | 치명 버그 목록 확정, 담당자 배정 |
 
+참조: timeline 메모 · 수정 허용: `docs/**`
+
 #### J8 · 베타 빌드·회고  
 `Day 10` · 1일 · 2주차
 
@@ -631,6 +754,8 @@ production 빌드를 테스터에게 배포함.
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
 | 베타 빌드, 다음 주 계획 | CL9 베타 빌드 배포, FE11 QA 버그 수정·스크린샷, SV11 심사 계정·지표·모니터링 | 테스터에게 설치 링크 전달 |
+
+참조: timeline 메모 · 수정 허용: `docs/**`
 
 ## 메모
 
@@ -673,7 +798,8 @@ production 빌드를 테스터에게 배포함.
 
 ## 협업 규칙
 
+- **작업 지시**: Claude Code에 태그를 말한다(`SV5 해줘`, `/task SV5`). 절차는 `.claude/skills/task/SKILL.md`.
 - **스탠드업**: 매일 10:00, 15분. 어제 한 일, 오늘 할 일, 막힌 것.
-- **브랜치**: `main`(보호, staging 자동 배포) ← `feat/fe-*`, `feat/cl-*`, `feat/sv-*`. PR은 리뷰 1명, CI 통과 필수. 동결(Day 8) 후에는 `fix/*`만.
+- **브랜치**: `feat/<레인 소문자>-<태그>-<요약>` (예: `feat/sv-SV5-join-post`) → `main`. PR 리뷰 1명, CI 통과 필수. 동결(Day 8) 후에는 `fix/*`만.
 - **계약 변경**: SV가 아키텍처 §4 수정 → `types/database.ts` 재생성 커밋 → CL이 훅 갱신 → FE에 공지.
 - **30분 규칙**: 30분 넘게 막히면 바로 공유. 일정에 영향이 있으면 그날 스탠드업에서 범위를 다시 조정한다.
