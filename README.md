@@ -6,21 +6,21 @@ POSTECH 구성원 전용 배달음식 공동구매 매칭 앱입니다(앱 이�
 ## 팀 (5인)
 | 담당 | 역할 | 맡는 작업 |
 |---|---|---|
-| P1 FE-A(혜인이) | 디자인 규칙·화면 설계도, 가입·첫 실행·글 상세·설정·신고 화면을 직접 코딩 | FE1, FE3, FE4, FE6, FE9, FE10a |
-| P2 FE-B(민준이) | 공용 화면 부품, 글 목록·글쓰기·채팅·송금 화면을 직접 코딩, 스토어 사진 | FE2, FE5, FE7, FE8, FE10b, FE11 |
+| P1 FE(혜인이) | 프론트엔드 개발: 앱 뼈대, 공용 부품, 모든 화면 코딩 | FE12, FE2–FE9, FE10a, FE11 |
+| P2 디자인(민준이) | 디자인: 디자인 규칙, 화면 시안(코딩 순서대로), 매일 검수, 문구, 아이콘, 스토어 사진 | FE1, DS1–DS8, FE10b |
 | P3 CL(재민이) | 인증 세션, 데이터 훅, 실시간 채팅, 푸시 클라이언트 | CL2–CL6, CL7a |
 | P4 SV(하린이) | 스키마, RLS, RPC, 채팅 방송, 신고·제재 | SV1, SV3–SV7, SV9 |
 | P5 OPS(김종연) | Expo·EAS, 도메인·메일, 푸시 워커, 딥링크, 운영 환경, 약관·스토어 | CL1, SV2, OP1–OP3, SV8, CL7b, CL8, SV10, CL9, SV11 |
 | 공동 | 킥오프, 계약 고정, 데모, 동결, QA, 베타 | J1–J8 |
 
-태그 접두사(FE, CL, SV, OP, J)는 작업 종류이고 담당자와 다를 수 있습니다. 담당자별 수정 범위는 `tasks.json`의 각 작업 `paths`에 있습니다.
+태그 접두사(FE, DS, CL, SV, OP, J)는 작업 종류이고 담당자와 다를 수 있습니다. 담당자별 수정 범위는 `tasks.json`의 각 작업 `paths`에 있습니다.
 
 ## 문서
 | 문서 | 내용 |
 |---|---|
 | [기획서.md](docs/기획서.md) | 기능 범위(MUST/SHOULD/LATER), POSTECH 메일 인증 정책, 성공 지표 |
 | [아키텍처.md](docs/아키텍처.md) | 구현 기준: 시스템 구성, DB 스키마, RPC 명세, RLS, 채팅·푸시, 환경, 보안 |
-| [타임라인.md](docs/timeline.md) | 5인 10일 개발 일정, 작업 44개와 상태 (`docs/tasks/tasks.json`에서 생성) |
+| [타임라인.md](docs/timeline.md) | 5인 10일 개발 일정, 작업 56개와 상태 (`docs/tasks/tasks.json`에서 생성) |
 | [timeline.html](docs/timeline.html) | 최종 아티팩트와 같은 간트 페이지. 브라우저로 열면 볼 수 있다(저장은 아티팩트에서만) |
 | [CLAUDE.md](CLAUDE.md) | Claude Code 작업 규칙: 문서 우선순위, 역할 경계, Git 규칙 |
 | [작업 태그 절차](.claude/skills/task/SKILL.md) | `SV5 해줘`처럼 태그로 지시할 때 AI가 따르는 절차 |
