@@ -1290,7 +1290,7 @@
         "J1"
       ],
       "done": "supabase db reset이 오류 없이 끝남",
-      "status": "todo",
+      "status": "done",
       "refs": [
         "아키텍처 §2",
         "아키텍처 §11"
