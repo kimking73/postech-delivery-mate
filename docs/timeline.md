@@ -75,7 +75,7 @@
 | SV9 | 신고·제재·탈퇴·관리자 알림 | P4 | Day 7–8 | SV7 | ⬜ todo |
 | SV12 | QA 버그 수정 (서버) | P4 | Day 10 | J7 | ⬜ todo |
 | CL1 | Expo 프로젝트·기반 | P5 | Day 1 | J1 | ⬜ todo |
-| SV2 | 도메인·Resend DNS | P5 | Day 1 | — | ⬜ todo |
+| SV2 | 도메인·Resend DNS | P5 | Day 1 | — | 🟨 doing |
 | OP3 | 생활 구역·픽업 장소 수집 | P5 | Day 1–3 | J1 | ⬜ todo |
 | OP1 | 약관·개인정보처리방침·EULA | P5 | Day 2–4 | J1 | ⬜ todo |
 | OP2 | 스토어 등록 자료 | P5 | Day 6–9 | OP1 | ⬜ todo |
