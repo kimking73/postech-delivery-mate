@@ -56,8 +56,8 @@ python3 docs/tasks/task.py gen               # timeline.md와 timeline.html 재�
 - **비밀값 금지:** `.env*`, service_role 키, SMTP 비밀번호, 인증서(`.p8`, `.jks`)는 커밋하지 않는다.
 
 ## 기술 스택 요약
-Expo(dev client, Expo Router, TS strict) · TanStack Query · Zustand · NativeWind · FlashList · Supabase(서울 리전: Postgres, RLS, RPC, Realtime Broadcast, pg_cron, pgmq, Edge Functions) · Resend SMTP · Expo Push · Sentry · PostHog · EAS. 자세한 내용은 아키텍처 §0과 §1에 있다.
+Expo(dev client, Expo Router, TS strict) · TanStack Query · Zustand · NativeWind · FlashList · Supabase(서울 리전: Postgres, RLS, RPC, Realtime Broadcast, pg_cron, pgmq, Edge Functions) · Gmail SMTP(공용 계정, 앱 비밀번호) · Expo Push · Sentry · PostHog · EAS. 자세한 내용은 아키텍처 §0과 §1에 있다.
 
 ## 현재 상태
-- 앱 코드는 아직 없다. 첫 작업은 `J1`(킥오프), `CL1`(Expo 골격, P5), `SV1`(Supabase 환경, P4), `SV2`(도메인·Resend, P5), `OP3`(구역·픽업 장소 수집, P5), `FE1`(디자인 규칙, P2), `FE12`(화면 뼈대, P1)이다.
-- 아직 임시 값인 것: 앱 이름, 도메인(`example.kr`), 생활 구역 목록, 픽업 장소 목록.
+- 앱 코드는 아직 없다. 첫 작업은 `J1`(킥오프), `CL1`(Expo 골격, P5), `SV1`(Supabase 환경, P4), `SV2`(공용 Gmail SMTP, P5), `OP3`(구역·픽업 장소 수집, P5), `FE1`(디자인 규칙, P2), `FE12`(화면 뼈대, P1)이다.
+- 아직 임시 값인 것: 앱 이름, 공유 링크 도메인(`example.kr`), 생활 구역 목록, 픽업 장소 목록.
