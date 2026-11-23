@@ -893,7 +893,7 @@ J7에서 나온 RPC·RLS·cron 버그를 수정하고 production에 반영함.
 
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
-| 발신 Gmail 계정과 앱 비밀번호 | 없음 | Gmail SMTP로 보낸 테스트 메일이 POSTECH 받은편지함에 도착(SPF·DKIM·DMARC pass) |
+| 발신 Gmail 계정과 앱 비밀번호 | 없음 | Gmail SMTP로 보낸 테스트 메일이 POSTECH 받은편지함에 도착. POSTECH 메일 게이트웨이의 Authentication-Results에서 SPF·DKIM·DMARC pass(학교 서버를 거친 뒤 Outlook 단계의 SPF softfail은 전달 때문이라 허용) |
 
 참조: 아키텍처 §0, 아키텍처 §3-2 · 수정 허용: `docs/**`
 
@@ -1278,7 +1278,6 @@ production 빌드를 테스터에게 배포함.
 ### Day 0 사전 점검
 - Apple 개발자 계정: 단체 계정은 D-U-N-S 발급에 1~2주. 미리 등록
 - Google Play: 새 개인 계정은 정식 출시 전 12명 이상·14일 비공개 테스트 필요(다음 주 출시 계획에 반영)
-- 도메인 구매와 DNS 설정을 Day 0에 시작(전파 시간)
 - 테스트용 POSTECH 메일 3개 이상 확보
 - Supabase·공용 Gmail·Sentry·PostHog·Slack·카카오 계정 생성
 
