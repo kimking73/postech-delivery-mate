@@ -1,0 +1,22 @@
+# 앱 코드 PR 검사 (아키텍처 §11 CI). DB 검사는 db.yml(SV3)이 맡는다.
+name: app
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run format:check
+      - run: npx expo-doctor

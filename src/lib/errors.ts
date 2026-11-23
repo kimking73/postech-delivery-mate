@@ -114,11 +114,18 @@ export function toAppError(e: unknown): AppError {
   const lower = message.toLowerCase();
   if (lower.includes('email not confirmed')) return new AppError('EMAIL_NOT_CONFIRMED', e);
   if (lower.includes('invalid login credentials')) return new AppError('INVALID_CREDENTIALS', e);
-  if (lower.includes('token has expired') || lower.includes('otp') || lower.includes('invalid token')) {
+  if (
+    lower.includes('token has expired') ||
+    lower.includes('otp') ||
+    lower.includes('invalid token')
+  ) {
     return new AppError('INVALID_OTP', e);
   }
   if (lower.includes('captcha')) return new AppError('CAPTCHA_FAILED', e);
-  if (lower.includes('password') && (lower.includes('weak') || lower.includes('at least') || lower.includes('pwned'))) {
+  if (
+    lower.includes('password') &&
+    (lower.includes('weak') || lower.includes('at least') || lower.includes('pwned'))
+  ) {
     return new AppError('WEAK_PASSWORD', e);
   }
   if (lower.includes('rate limit') || lower.includes('only request this after')) {

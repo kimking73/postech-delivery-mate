@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { AppError } from '@/lib/errors';
 import { queryKeys } from '@/lib/queryClient';
@@ -18,22 +18,35 @@ export function useSession(): { session: AppSession | null; ready: boolean } {
     session: null,
     ready: false,
   });
+  // undefined = 아직 모름. 처음 받은 세션부터 기록해 두어야 첫 사용자 전환 때도 캐시를 비울 수 있다.
+  const lastUserId = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     let alive = true;
-    api
-      .getSession()
-      .then((session) => alive && setState({ session, ready: true }))
-      .catch(() => alive && setState({ session: null, ready: true }));
+    // 이벤트로 이미 최신 세션을 받았다면 늦게 도착한 getSession() 결과가 덮어쓰지 못하게 한다.
+    let receivedEvent = false;
 
-    let lastUserId: string | null | undefined;
+    const apply = (session: AppSession | null) => {
+      const userId = session?.userId ?? null;
+      if (lastUserId.current !== undefined && lastUserId.current !== userId) queryClient.clear();
+      lastUserId.current = userId;
+      setState({ session, ready: true });
+    };
+
     const unsubscribe = api.onSessionChange((session) => {
       if (!alive) return;
-      const userId = session?.userId ?? null;
-      if (lastUserId !== undefined && lastUserId !== userId) queryClient.clear();
-      lastUserId = userId;
-      setState({ session, ready: true });
+      receivedEvent = true;
+      apply(session);
     });
+    api
+      .getSession()
+      .then((session) => {
+        if (alive && !receivedEvent) apply(session);
+      })
+      .catch(() => {
+        if (alive && !receivedEvent) apply(null);
+      });
+
     return () => {
       alive = false;
       unsubscribe();

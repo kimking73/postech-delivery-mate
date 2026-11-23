@@ -146,7 +146,7 @@
     },
     {
       "h": "Day 0 사전 점검",
-      "b": "Apple 개발자 계정: 단체 계정은 D-U-N-S 발급에 1~2주. 미리 등록\nGoogle Play: 새 개인 계정은 정식 출시 전 12명 이상·14일 비공개 테스트 필요(다음 주 출시 계획에 반영)\n도메인 구매와 DNS 설정을 Day 0에 시작(전파 시간)\n테스트용 POSTECH 메일 3개 이상 확보\nSupabase·Resend·Sentry·PostHog·Slack·카카오 계정 생성"
+      "b": "Apple 개발자 계정: 단체 계정은 D-U-N-S 발급에 1~2주. 미리 등록\nGoogle Play: 새 개인 계정은 정식 출시 전 12명 이상·14일 비공개 테스트 필요(다음 주 출시 계획에 반영)\n테스트용 POSTECH 메일 3개 이상 확보\nSupabase·공용 Gmail·Sentry·PostHog·Slack·카카오 계정 생성"
     },
     {
       "h": "P1·P2 인계",
@@ -1290,7 +1290,7 @@
         "J1"
       ],
       "done": "supabase db reset이 오류 없이 끝남",
-      "status": "todo",
+      "status": "done",
       "refs": [
         "아키텍처 §2",
         "아키텍처 §11"
@@ -1319,7 +1319,7 @@
         "reports, blocks, sanctions, push_tokens, category_subscriptions, banned_words, deleted_accounts, rate_events",
         "헬퍼 함수: is_verified_member, is_participant, is_blocked_between, is_sanctioned, assert_rate, assert_clean",
         "RPC 24종 시그니처(송금 3종 포함)를 빈 함수로 마이그레이션 → 타입 생성 가능",
-        "Before User Created Hook(@postech.ac.kr), OTP 6자리·10분, 비밀번호 정책, Resend SMTP",
+        "Before User Created Hook(@postech.ac.kr), OTP 6자리·10분, 비밀번호 정책, Gmail SMTP",
         "CI: PR마다 db reset + pgTAP",
         "수동 송금: payout_accounts 테이블, posts.pay_due_at·pay_reminded_at, participants.paid_at, can_view_payout 헬퍼",
         "송금 RPC 스텁 추가: set_payout_account, get_host_account, reject_paid / 에러 코드 ACCOUNT_REQUIRED, PAY_DEADLINE_PASSED"
@@ -1626,7 +1626,7 @@
         "J1"
       ],
       "done": "5명 모두 dev client로 앱 실행",
-      "status": "todo",
+      "status": "done",
       "refs": [
         "아키텍처 §9",
         "아키텍처 §11"
@@ -1641,22 +1641,22 @@
       "g": "B",
       "s": 1,
       "e": 1,
-      "t": "도메인·Resend DNS",
+      "t": "공용 Gmail SMTP 준비",
       "pt": "인증 메일을 보낼 주소 준비",
-      "pd": "인증번호 메일이 스팸함으로 가지 않도록 우리 도메인(인터넷 주소)을 사고, 메일 발송 서비스(Resend)에 '우리가 보낸 메일이 맞다'는 증명 설정을 한다.",
-      "sum": "인증 메일 발송을 위한 도메인을 준비함.",
+      "pd": "인증번호 메일을 보낼 팀 공용 Gmail 계정을 만들고, Supabase가 그 계정으로 메일을 보낼 수 있게 앱 비밀번호를 발급한다.",
+      "sum": "인증 메일 발송용 공용 Gmail과 앱 비밀번호를 준비함.",
       "w": [
-        "도메인 구매(임시 example.kr)",
-        "Resend 도메인 등록, mail. 서브도메인",
-        "SPF, DKIM, DMARC DNS 레코드 설정(전파 대기)",
+        "팀 공용 Gmail 계정 생성, 2단계 인증 켜기, 복구 수단 팀원 2명 등록",
+        "앱 비밀번호 발급, 비밀번호 관리자에만 보관",
+        "SMTP로 테스트 메일 1통 발송(smtp.gmail.com:465)",
         "Day 2까지 POSTECH 메일로 테스트 메일 1통 발송해 도착·스팸함 여부 확인"
       ],
       "out": [
-        "발신 도메인"
+        "발신 Gmail 계정과 앱 비밀번호"
       ],
       "dep": [],
-      "done": "Resend 대시보드에서 도메인 Verified",
-      "status": "todo",
+      "done": "Gmail SMTP로 보낸 테스트 메일이 POSTECH 받은편지함에 도착. POSTECH 메일 게이트웨이의 Authentication-Results에서 SPF·DKIM·DMARC pass(학교 서버를 거친 뒤 Outlook 단계의 SPF softfail은 전달 때문이라 허용)",
+      "status": "done",
       "refs": [
         "아키텍처 §0",
         "아키텍처 §3-2"
@@ -1708,7 +1708,7 @@
       "sum": "출시에 필요한 법적 문서를 만듦.",
       "w": [
         "이용약관: 회원 간 거래, 회사는 당사자가 아님, 송금·환불은 회원 간 직접 하고 앱은 돈을 보관하지 않음",
-        "개인정보처리방침: 수집 항목(메일, 닉네임, 송금 받을 계좌, 기기 토큰, 이용 기록), 국외 이전(Resend·Sentry·PostHog·Expo), 보관 기간(메일 해시·메시지 90일, 계좌 탈퇴 즉시 삭제)",
+        "개인정보처리방침: 수집 항목(메일, 닉네임, 송금 받을 계좌, 기기 토큰, 이용 기록), 국외 이전(Google(Gmail)·Sentry·PostHog·Expo), 보관 기간(메일 해시·메시지 90일, 계좌 탈퇴 즉시 삭제)",
         "EULA: 부적절한 콘텐츠 무관용",
         "접근권한 고지 문구",
         "변호사 검토 요청"
@@ -2015,7 +2015,7 @@
       "w": [
         "Day 0 사전 점검 결과 확인(아래 메모 'Day 0 사전 점검')",
         "오전 킥오프 30분: 역할, 브랜치 규칙(feat/fe-*, feat/cl-*, feat/sv-*, feat/op-*), PR 리뷰 1명",
-        "계정 점검: Apple·Google 개발자, Supabase, Resend, Sentry, PostHog, Slack, 카카오",
+        "계정 점검: Apple·Google 개발자, Supabase, 공용 Gmail, Sentry, PostHog, Slack, 카카오",
         "테스트용 POSTECH 메일 3개 이상 확보",
         "담당자별 수정 범위(tasks.json의 paths) 확인"
       ],
@@ -2024,7 +2024,7 @@
       ],
       "dep": [],
       "done": "5명 모두 저장소·콘솔 접근 가능",
-      "status": "todo",
+      "status": "done",
       "refs": [
         "timeline 메모"
       ],

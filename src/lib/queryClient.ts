@@ -10,8 +10,7 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 30_000,
       gcTime: 5 * 60_000,
-      retry: (failureCount, error) =>
-        failureCount < 2 && RETRYABLE.has(toAppError(error).code),
+      retry: (failureCount, error) => failureCount < 2 && RETRYABLE.has(toAppError(error).code),
       refetchOnWindowFocus: false, // RN은 AppState로 별도 처리(CL5)
     },
     mutations: { retry: false },
@@ -21,6 +20,8 @@ export const queryClient = new QueryClient({
 /** 서버 상태 쿼리 키 (아키텍처 §9). 키는 여기서만 만든다. */
 export const queryKeys = {
   me: ['me'] as const,
+  /** 모든 구역의 피드 (무효화용 접두사) */
+  feedRoot: ['feed'] as const,
   feed: (zoneId: number) => ['feed', zoneId] as const,
   post: (id: string) => ['post', id] as const,
   rooms: ['rooms'] as const,

@@ -13,11 +13,18 @@ import type { SendMessageInput } from './schema';
  * 실시간 수신(Broadcast 구독, 중복 제거, 재구독, 놓친 메시지 채우기)은 CL5에서 이 키에 붙인다.
  */
 export function useMessages(postId: string | undefined) {
-  return useInfiniteQuery<MessageRow[], AppError, { pages: MessageRow[][] }, ReturnType<typeof queryKeys.messages>, number | null>({
+  return useInfiniteQuery<
+    MessageRow[],
+    AppError,
+    { pages: MessageRow[][] },
+    ReturnType<typeof queryKeys.messages>,
+    number | null
+  >({
     queryKey: queryKeys.messages(postId ?? ''),
     enabled: !!postId,
     initialPageParam: null,
-    queryFn: ({ pageParam }) => api.getMessages(postId as string, pageParam, LIMITS.message.pageSize),
+    queryFn: ({ pageParam }) =>
+      api.getMessages(postId as string, pageParam, LIMITS.message.pageSize),
     getNextPageParam: (last) =>
       last.length < LIMITS.message.pageSize ? undefined : (last[last.length - 1]?.id ?? undefined),
   });

@@ -66,7 +66,7 @@
 | CL6 | 푸시 클라이언트 | P3 | Day 7 | CL5, SV8 | ⬜ todo |
 | CL7a | 신고·차단 훅 | P3 | Day 8 | CL4, SV9 | ⬜ todo |
 | CL10 | QA 버그 수정 (앱 로직) | P3 | Day 10 | J7 | ⬜ todo |
-| SV1 | Supabase 환경·핵심 테이블 | P4 | Day 1 | J1 | ⬜ todo |
+| SV1 | Supabase 환경·핵심 테이블 | P4 | Day 1 | J1 | ✅ done |
 | SV3 | 나머지 테이블·RPC 스텁·Auth 설정 | P4 | Day 2 | SV1, SV2 | ⬜ todo |
 | SV4 | 프로필 RPC·RLS·메일 실측 | P4 | Day 3 | SV3, J2 | ⬜ todo |
 | SV5 | 글·참여 RPC | P4 | Day 4 | SV4, OP3 | ⬜ todo |
@@ -74,8 +74,8 @@
 | SV7 | 채팅 RPC·방송 | P4 | Day 6 | SV6 | ⬜ todo |
 | SV9 | 신고·제재·탈퇴·관리자 알림 | P4 | Day 7–8 | SV7 | ⬜ todo |
 | SV12 | QA 버그 수정 (서버) | P4 | Day 10 | J7 | ⬜ todo |
-| CL1 | Expo 프로젝트·기반 | P5 | Day 1 | J1 | ⬜ todo |
-| SV2 | 도메인·Resend DNS | P5 | Day 1 | — | ⬜ todo |
+| CL1 | Expo 프로젝트·기반 | P5 | Day 1 | J1 | ✅ done |
+| SV2 | 공용 Gmail SMTP 준비 | P5 | Day 1 | — | ✅ done |
 | OP3 | 생활 구역·픽업 장소 수집 | P5 | Day 1–3 | J1 | ⬜ todo |
 | OP1 | 약관·개인정보처리방침·EULA | P5 | Day 2–4 | J1 | ⬜ todo |
 | OP2 | 스토어 등록 자료 | P5 | Day 6–9 | OP1 | ⬜ todo |
@@ -86,7 +86,7 @@
 | SV10 | 보안 점검·production 구성 | P5 | Day 9–10 | SV9 | ⬜ todo |
 | CL9 | 베타 빌드 배포 | P5 | Day 10 | J7, SV10 | ⬜ todo |
 | SV11 | 심사 계정·지표·모니터링 | P5 | Day 10 | SV10 | ⬜ todo |
-| J1 | 킥오프 | J | Day 1 | — | ⬜ todo |
+| J1 | 킥오프 | J | Day 1 | — | ✅ done |
 | J2 | 계약 고정 | J | Day 2 | SV3, CL2 | ⬜ todo |
 | J3 | 인증 E2E 확인 | J | Day 4 | CL3, FE3, FE4, SV4 | ⬜ todo |
 | J4 | 1주차 데모 | J | Day 5 | CL4, FE6, SV6 | ⬜ todo |
@@ -99,7 +99,7 @@
 
 | 순서 | P1 FE(혜인이) | P2 디자인(민준이) | P3 CL(재민이) | P4 SV(하린이) | P5 OPS(김종연) | 공동 |
 |---|---|---|---|---|---|---|
-| **Day 1** | FE12 앱 화면 뼈대·디자인 규칙 코드화 | FE1 디자인 규칙·공용 부품 모양·화면 흐름 | — | SV1 Supabase 환경·핵심 테이블 | CL1 Expo 프로젝트·기반<br>SV2 도메인·Resend DNS<br>OP3 생활 구역·픽업 장소 수집 | J1 킥오프 |
+| **Day 1** | FE12 앱 화면 뼈대·디자인 규칙 코드화 | FE1 디자인 규칙·공용 부품 모양·화면 흐름 | — | SV1 Supabase 환경·핵심 테이블 | CL1 Expo 프로젝트·기반<br>SV2 공용 Gmail SMTP 준비<br>OP3 생활 구역·픽업 장소 수집 | J1 킥오프 |
 | **Day 2** | FE2 공용 부품 코딩(UI 키트) | DS1 시안 ① 가입·로그인·첫 실행 | CL2 인증 가드·타입·목 훅 | SV3 나머지 테이블·RPC 스텁·Auth 설정 | OP3 생활 구역·픽업 장소 수집<br>OP1 약관·개인정보처리방침·EULA | J2 계약 고정 |
 | **Day 3** | FE3 가입·로그인 화면 | DS2 시안 ② 글 목록·글쓰기·글 상세·내 채팅방 | CL3 인증 훅·실기기 E2E | SV4 프로필 RPC·RLS·메일 실측 | OP3 생활 구역·픽업 장소 수집<br>OP1 약관·개인정보처리방침·EULA | — |
 | **Day 4** | FE4 첫 실행 안내·프로필 설정 화면<br>FE5 글 목록·글쓰기 화면 | DS3 시안 ③ 채팅·송금 표시·알림 설정<br>DS5 디자인 검수 (매일 15분) | CL3 인증 훅·실기기 E2E<br>CL4 피드·글·참여 훅 | SV5 글·참여 RPC | OP1 약관·개인정보처리방침·EULA | J3 인증 E2E 확인 |
@@ -715,14 +715,14 @@ J7에서 나온 훅·세션·실시간·푸시 수신 버그를 수정함.
 1. reports, blocks, sanctions, push_tokens, category_subscriptions, banned_words, deleted_accounts, rate_events
 2. 헬퍼 함수: is_verified_member, is_participant, is_blocked_between, is_sanctioned, assert_rate, assert_clean
 3. RPC 24종 시그니처(송금 3종 포함)를 빈 함수로 마이그레이션 → 타입 생성 가능
-4. Before User Created Hook(@postech.ac.kr), OTP 6자리·10분, 비밀번호 정책, Resend SMTP
+4. Before User Created Hook(@postech.ac.kr), OTP 6자리·10분, 비밀번호 정책, Gmail SMTP
 5. CI: PR마다 db reset + pgTAP
 6. 수동 송금: payout_accounts 테이블, posts.pay_due_at·pay_reminded_at, participants.paid_at, can_view_payout 헬퍼
 7. 송금 RPC 스텁 추가: set_payout_account, get_host_account, reject_paid / 에러 코드 ACCOUNT_REQUIRED, PAY_DEADLINE_PASSED
 
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
-| migrations 0003–0005 스텁, Auth 설정, GitHub Actions | SV1 Supabase 환경·핵심 테이블, SV2 도메인·Resend DNS | CL이 타입을 생성해 목 훅 작성 시작 · 오전 중 main에 머지(받는 쪽이 오후에 바로 이어서 작업) |
+| migrations 0003–0005 스텁, Auth 설정, GitHub Actions | SV1 Supabase 환경·핵심 테이블, SV2 공용 Gmail SMTP 준비 | CL이 타입을 생성해 목 훅 작성 시작 · 오전 중 main에 머지(받는 쪽이 오후에 바로 이어서 작업) |
 
 참조: 아키텍처 §2-2, 아키텍처 §2-3, 아키텍처 §3, 아키텍처 §4, 아키텍처 §11, 기획서 §1 · 수정 허용: `supabase/migrations/**`, `supabase/tests/**`, `supabase/seed.sql`, `supabase/config.toml`, `supabase/functions/delete-account/**`, `supabase/functions/admin-alert/**`, `src/types/database.ts`, `.github/workflows/**`
 
@@ -877,23 +877,23 @@ J7에서 나온 RPC·RLS·cron 버그를 수정하고 production에 반영함.
 
 참조: 아키텍처 §9, 아키텍처 §11 · 수정 허용: `**`
 
-#### SV2 · 도메인·Resend DNS  
+#### SV2 · 공용 Gmail SMTP 준비  
 `Day 1` · 1일 · 1주차
 
 > **쉽게 말하면: 인증 메일을 보낼 주소 준비**  
-> 인증번호 메일이 스팸함으로 가지 않도록 우리 도메인(인터넷 주소)을 사고, 메일 발송 서비스(Resend)에 '우리가 보낸 메일이 맞다'는 증명 설정을 한다.
+> 인증번호 메일을 보낼 팀 공용 Gmail 계정을 만들고, Supabase가 그 계정으로 메일을 보낼 수 있게 앱 비밀번호를 발급한다.
 
-인증 메일 발송을 위한 도메인을 준비함.
+인증 메일 발송용 공용 Gmail과 앱 비밀번호를 준비함.
 
 **세부 작업**
-1. 도메인 구매(임시 example.kr)
-2. Resend 도메인 등록, mail. 서브도메인
-3. SPF, DKIM, DMARC DNS 레코드 설정(전파 대기)
+1. 팀 공용 Gmail 계정 생성, 2단계 인증 켜기, 복구 수단 팀원 2명 등록
+2. 앱 비밀번호 발급, 비밀번호 관리자에만 보관
+3. SMTP로 테스트 메일 1통 발송(smtp.gmail.com:465)
 4. Day 2까지 POSTECH 메일로 테스트 메일 1통 발송해 도착·스팸함 여부 확인
 
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
-| 발신 도메인 | 없음 | Resend 대시보드에서 도메인 Verified |
+| 발신 Gmail 계정과 앱 비밀번호 | 없음 | Gmail SMTP로 보낸 테스트 메일이 POSTECH 받은편지함에 도착. POSTECH 메일 게이트웨이의 Authentication-Results에서 SPF·DKIM·DMARC pass(학교 서버를 거친 뒤 Outlook 단계의 SPF softfail은 전달 때문이라 허용) |
 
 참조: 아키텍처 §0, 아키텍처 §3-2 · 수정 허용: `docs/**`
 
@@ -926,7 +926,7 @@ seed에 넣을 실제 구역과 픽업 장소를 정함.
 
 **세부 작업**
 1. 이용약관: 회원 간 거래, 회사는 당사자가 아님, 송금·환불은 회원 간 직접 하고 앱은 돈을 보관하지 않음
-2. 개인정보처리방침: 수집 항목(메일, 닉네임, 송금 받을 계좌, 기기 토큰, 이용 기록), 국외 이전(Resend·Sentry·PostHog·Expo), 보관 기간(메일 해시·메시지 90일, 계좌 탈퇴 즉시 삭제)
+2. 개인정보처리방침: 수집 항목(메일, 닉네임, 송금 받을 계좌, 기기 토큰, 이용 기록), 국외 이전(Google(Gmail)·Sentry·PostHog·Expo), 보관 기간(메일 해시·메시지 90일, 계좌 탈퇴 즉시 삭제)
 3. EULA: 부적절한 콘텐츠 무관용
 4. 접근권한 고지 문구
 5. 변호사 검토 요청
@@ -1107,7 +1107,7 @@ production 빌드를 테스터에게 배포함.
 **세부 작업**
 1. Day 0 사전 점검 결과 확인(아래 메모 'Day 0 사전 점검')
 2. 오전 킥오프 30분: 역할, 브랜치 규칙(feat/fe-*, feat/cl-*, feat/sv-*, feat/op-*), PR 리뷰 1명
-3. 계정 점검: Apple·Google 개발자, Supabase, Resend, Sentry, PostHog, Slack, 카카오
+3. 계정 점검: Apple·Google 개발자, Supabase, 공용 Gmail, Sentry, PostHog, Slack, 카카오
 4. 테스트용 POSTECH 메일 3개 이상 확보
 5. 담당자별 수정 범위(tasks.json의 paths) 확인
 
@@ -1278,9 +1278,8 @@ production 빌드를 테스터에게 배포함.
 ### Day 0 사전 점검
 - Apple 개발자 계정: 단체 계정은 D-U-N-S 발급에 1~2주. 미리 등록
 - Google Play: 새 개인 계정은 정식 출시 전 12명 이상·14일 비공개 테스트 필요(다음 주 출시 계획에 반영)
-- 도메인 구매와 DNS 설정을 Day 0에 시작(전파 시간)
 - 테스트용 POSTECH 메일 3개 이상 확보
-- Supabase·Resend·Sentry·PostHog·Slack·카카오 계정 생성
+- Supabase·공용 Gmail·Sentry·PostHog·Slack·카카오 계정 생성
 
 ### P1·P2 인계
 - 시안은 P1이 코딩하기 하루 전까지 전달: ①가입(D2→D3) ②목록·상세(D3→D4) ③채팅(D5→D6) ④방장·신고(D6→D8)

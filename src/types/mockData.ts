@@ -34,9 +34,16 @@ export const mockPickupPlaces: PickupPlaceRow[] = [
   { id: 4, zone_id: 3, name: '도서관 앞', sort_order: 1, is_active: true },
 ];
 
-const categoryNames: Array<[string, string]> = [
-  ['치킨', '🍗'], ['피자', '🍕'], ['한식', '🍚'], ['중식', '🥟'], ['일식', '🍣'],
-  ['분식', '🍢'], ['야식', '🌙'], ['카페·디저트', '☕'], ['기타', '🍽️'],
+const categoryNames: [string, string][] = [
+  ['치킨', '🍗'],
+  ['피자', '🍕'],
+  ['한식', '🍚'],
+  ['중식', '🥟'],
+  ['일식', '🍣'],
+  ['분식', '🍢'],
+  ['야식', '🌙'],
+  ['카페·디저트', '☕'],
+  ['기타', '🍽️'],
 ];
 export const mockCategories: CategoryRow[] = categoryNames.map(([name, emoji], i) => ({
   id: i + 1,
@@ -61,13 +68,15 @@ export const mockProfile: ProfileRow = {
   created_at: now(),
 };
 
+const STORE_NAMES = ['BHC 치킨', '도미노피자', '신전떡볶이', '맘스터치'];
+
 function post(i: number, over: Partial<PostRow> = {}): PostRow {
   return {
     id: `10000000-0000-4000-8000-00000000000${i}`,
     host_id: HOST_ID,
     zone_id: 1,
     category_id: (i % 9) + 1,
-    store_name: ['BHC 치킨', '도미노피자', '신전떡볶이', '맘스터치'][i % 4],
+    store_name: STORE_NAMES[i % STORE_NAMES.length] ?? '가게',
     store_url: 'https://example.com/store',
     pickup_place_id: 1,
     pickup_note: '1층 로비 앞',
@@ -90,31 +99,62 @@ function post(i: number, over: Partial<PostRow> = {}): PostRow {
 
 export const mockPosts: PostRow[] = [1, 2, 3, 4].map((i) => post(i));
 
+/** 목 데이터의 첫 번째 글(내가 참여 중인 방). 배열이 비어 있을 수 없으므로 한 번만 단언한다. */
+const FIRST_POST_ID = (mockPosts[0] as PostRow).id;
+
 export const MOCK_HOST_NICKNAME = '방장닉';
 
 /** PostRow → get_feed 반환 행 (SV3 스텁이 돌려주는 열만 남긴다) */
 export function toFeedPost(p: PostRow, hostNickname: string = MOCK_HOST_NICKNAME): FeedPost {
   return {
-    id: p.id, host_id: p.host_id, host_nickname: hostNickname, category_id: p.category_id,
-    store_name: p.store_name, store_url: p.store_url, pickup_place_id: p.pickup_place_id,
-    pickup_note: p.pickup_note, max_members: p.max_members, member_count: p.member_count,
-    deadline_at: p.deadline_at, fee_note: p.fee_note, memo: p.memo, status: p.status,
+    id: p.id,
+    host_id: p.host_id,
+    host_nickname: hostNickname,
+    category_id: p.category_id,
+    store_name: p.store_name,
+    store_url: p.store_url,
+    pickup_place_id: p.pickup_place_id,
+    pickup_note: p.pickup_note,
+    max_members: p.max_members,
+    member_count: p.member_count,
+    deadline_at: p.deadline_at,
+    fee_note: p.fee_note,
+    memo: p.memo,
+    status: p.status,
     created_at: p.created_at,
   };
 }
 
 export const mockMessages: MessageRow[] = [
   {
-    id: 1, post_id: mockPosts[0].id, sender_id: null, type: 'system',
-    body: '방장닉님이 모집을 시작했어요', client_msg_id: null, hidden_at: null, created_at: now(),
+    id: 1,
+    post_id: FIRST_POST_ID,
+    sender_id: null,
+    type: 'system',
+    body: '방장닉님이 모집을 시작했어요',
+    client_msg_id: null,
+    hidden_at: null,
+    created_at: now(),
   },
   {
-    id: 2, post_id: mockPosts[0].id, sender_id: HOST_ID, type: 'text',
-    body: '안녕하세요! 7시쯤 시킬게요', client_msg_id: null, hidden_at: null, created_at: now(),
+    id: 2,
+    post_id: FIRST_POST_ID,
+    sender_id: HOST_ID,
+    type: 'text',
+    body: '안녕하세요! 7시쯤 시킬게요',
+    client_msg_id: null,
+    hidden_at: null,
+    created_at: now(),
   },
   {
-    id: 3, post_id: mockPosts[0].id, sender_id: MOCK_USER_ID, type: 'text',
-    body: '참여했어요~', client_msg_id: null, hidden_at: null, created_at: now(),
+    id: 3,
+    post_id: FIRST_POST_ID,
+    sender_id: MOCK_USER_ID,
+    type: 'text',
+    body: '참여했어요~',
+    client_msg_id: null,
+    hidden_at: null,
+    created_at: now(),
   },
 ];
 
@@ -126,18 +166,28 @@ export function toRoomSummary(
   role: 'host' | 'member' = 'member',
 ): RoomSummary {
   return {
-    post_id: p.id, store_name: p.store_name, category_id: p.category_id, status: p.status,
-    role, paid_state: 'none', member_count: p.member_count, max_members: p.max_members,
-    deadline_at: p.deadline_at, pay_due_at: p.pay_due_at, muted: false,
-    last_message_id: last?.id ?? null, last_message_type: last?.type ?? null,
-    last_message_body: last?.body ?? null, last_message_at: last?.created_at ?? null,
+    post_id: p.id,
+    store_name: p.store_name,
+    category_id: p.category_id,
+    status: p.status,
+    role,
+    paid_state: 'none',
+    member_count: p.member_count,
+    max_members: p.max_members,
+    deadline_at: p.deadline_at,
+    pay_due_at: p.pay_due_at,
+    muted: false,
+    last_message_id: last?.id ?? null,
+    last_message_type: last?.type ?? null,
+    last_message_body: last?.body ?? null,
+    last_message_at: last?.created_at ?? null,
     unread_count: Math.min(unread, 99),
   };
 }
 
 /** 처음부터 참여 중인 목 방 */
-export const mockJoinedPostIds: string[] = [mockPosts[0].id];
-export const mockInitialUnread: Record<string, number> = { [mockPosts[0].id]: 2 };
+export const mockJoinedPostIds: string[] = [FIRST_POST_ID];
+export const mockInitialUnread: Record<string, number> = { [FIRST_POST_ID]: 2 };
 
 export const mockPayoutAccount: PayoutAccountRow = {
   user_id: MOCK_USER_ID,

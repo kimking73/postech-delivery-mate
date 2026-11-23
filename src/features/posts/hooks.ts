@@ -1,9 +1,4 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { LIMITS } from '@/constants/limits';
 import type { AppError } from '@/lib/errors';
@@ -26,7 +21,11 @@ import type { CreatePostInput, PayoutAccountInput } from './schema';
 const REF_STALE = 60 * 60_000;
 
 export const useZones = () =>
-  useQuery<ZoneRow[], AppError>({ queryKey: queryKeys.zones, queryFn: api.getZones, staleTime: REF_STALE });
+  useQuery<ZoneRow[], AppError>({
+    queryKey: queryKeys.zones,
+    queryFn: api.getZones,
+    staleTime: REF_STALE,
+  });
 
 export const useCategories = () =>
   useQuery<CategoryRow[], AppError>({
@@ -49,13 +48,21 @@ export const usePickupPlaces = (zoneId: number | null | undefined) =>
  * 화면은 `data.pages.flat()`으로 목록을 만든다.
  */
 export function useFeed(zoneId: number | null | undefined) {
-  return useInfiniteQuery<FeedPost[], AppError, { pages: FeedPost[][] }, ReturnType<typeof queryKeys.feed>, string | null>({
+  return useInfiniteQuery<
+    FeedPost[],
+    AppError,
+    { pages: FeedPost[][] },
+    ReturnType<typeof queryKeys.feed>,
+    string | null
+  >({
     queryKey: queryKeys.feed(zoneId ?? 0),
     enabled: zoneId != null,
     initialPageParam: null,
     queryFn: ({ pageParam }) => api.getFeed(zoneId as number, pageParam, LIMITS.feed.pageSize),
     getNextPageParam: (last) =>
-      last.length < LIMITS.feed.pageSize ? undefined : (last[last.length - 1]?.deadline_at ?? undefined),
+      last.length < LIMITS.feed.pageSize
+        ? undefined
+        : (last[last.length - 1]?.deadline_at ?? undefined),
   });
 }
 
@@ -73,7 +80,7 @@ export const useMyRooms = () =>
 function useInvalidatePostQueries() {
   const queryClient = useQueryClient();
   return (postId?: string) => {
-    queryClient.invalidateQueries({ queryKey: ['feed'] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.feedRoot });
     queryClient.invalidateQueries({ queryKey: queryKeys.rooms });
     if (postId) queryClient.invalidateQueries({ queryKey: queryKeys.post(postId) });
   };

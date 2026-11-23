@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { AppError } from '@/lib/errors';
+import { queryKeys } from '@/lib/queryClient';
 
 import * as api from './api';
 import type { ReportInput } from './schema';
@@ -14,8 +15,8 @@ export function useReport() {
 function useAfterBlockChange() {
   const queryClient = useQueryClient();
   return () => {
-    queryClient.invalidateQueries({ queryKey: ['feed'] });
-    queryClient.invalidateQueries({ queryKey: ['rooms'] });
+    queryClient.invalidateQueries({ queryKey: queryKeys.feedRoot });
+    queryClient.invalidateQueries({ queryKey: queryKeys.rooms });
   };
 }
 

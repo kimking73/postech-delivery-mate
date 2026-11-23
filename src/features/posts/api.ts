@@ -39,7 +39,9 @@ export async function getZones(): Promise<ZoneRow[]> {
 
 export async function getCategories(): Promise<CategoryRow[]> {
   if (USE_MOCK) return mockCategories;
-  return selectRows<'categories'>(() => supabase.from('categories').select('*').order('sort_order'));
+  return selectRows<'categories'>(() =>
+    supabase.from('categories').select('*').order('sort_order'),
+  );
 }
 
 export async function getPickupPlaces(zoneId: number): Promise<PickupPlaceRow[]> {
@@ -147,9 +149,16 @@ export async function joinPost(postId: string): Promise<ParticipantRow> {
       mockPatch(postId, { member_count: p.member_count + 1 });
     }
     return {
-      post_id: postId, user_id: MOCK_USER_ID, role: 'member', state: 'joined', paid_state: 'none',
-      paid_at: null, muted: false, last_read_message_id: 0,
-      joined_at: new Date().toISOString(), left_at: null,
+      post_id: postId,
+      user_id: MOCK_USER_ID,
+      role: 'member',
+      state: 'joined',
+      paid_state: 'none',
+      paid_at: null,
+      muted: false,
+      last_read_message_id: 0,
+      joined_at: new Date().toISOString(),
+      left_at: null,
     };
   }
   return callRpc('join_post', { post_id: postId });
@@ -159,7 +168,8 @@ export async function leavePost(postId: string): Promise<void> {
   if (USE_MOCK) {
     await sleep();
     const p = mockPostState.get(postId);
-    if (p && mockJoined.delete(postId)) mockPatch(postId, { member_count: Math.max(1, p.member_count - 1) });
+    if (p && mockJoined.delete(postId))
+      mockPatch(postId, { member_count: Math.max(1, p.member_count - 1) });
     return;
   }
   await callRpc('leave_post', { post_id: postId });
@@ -205,7 +215,8 @@ export async function getMyRooms(): Promise<RoomSummary[]> {
     return [...mockJoined].flatMap((id) => {
       const post = mockPostState.get(id);
       if (!post) return [];
-      const last = mockMessages.filter((m) => m.post_id === id).sort((a, b) => b.id - a.id)[0] ?? null;
+      const last =
+        mockMessages.filter((m) => m.post_id === id).sort((a, b) => b.id - a.id)[0] ?? null;
       const role = post.host_id === MOCK_USER_ID ? 'host' : 'member';
       return [toRoomSummary(post, last, mockInitialUnread[id] ?? 0, role)];
     });
@@ -234,7 +245,8 @@ export async function getPayoutAccount(userId: string): Promise<PayoutAccountRow
 export async function setPayoutAccount(input: PayoutAccountInput): Promise<void> {
   if (USE_MOCK) {
     await sleep();
-    const empty = !input.bank_name && !input.account_number && !input.account_holder && !input.toss_link;
+    const empty =
+      !input.bank_name && !input.account_number && !input.account_holder && !input.toss_link;
     mockPayout = empty
       ? null
       : {

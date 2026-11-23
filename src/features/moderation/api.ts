@@ -7,7 +7,11 @@ import type { ReportInput } from './schema';
 
 export async function report(input: ReportInput): Promise<void> {
   if (USE_MOCK) return sleep();
-  await callRpc('report', { ...input, detail: input.detail ?? null, post_id: input.post_id ?? null });
+  await callRpc('report', {
+    ...input,
+    detail: input.detail ?? null,
+    post_id: input.post_id ?? null,
+  });
 }
 
 export async function blockUser(userId: string): Promise<void> {

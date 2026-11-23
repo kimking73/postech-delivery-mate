@@ -13,13 +13,7 @@ export type PaidState = 'none' | 'sent' | 'confirmed';
 export type MessageType = 'text' | 'system';
 export type ReportTarget = 'post' | 'message' | 'user' | 'noshow';
 export type ReportReason =
-  | 'spam'
-  | 'abuse'
-  | 'scam'
-  | 'inappropriate'
-  | 'noshow'
-  | 'unpaid'
-  | 'other';
+  'spam' | 'abuse' | 'scam' | 'inappropriate' | 'noshow' | 'unpaid' | 'other';
 export type ReportStatus = 'pending' | 'actioned' | 'dismissed';
 export type SanctionType = 'warn' | 'suspend' | 'ban';
 export type PushPlatform = 'ios' | 'android';
@@ -286,8 +280,7 @@ export interface Database {
 
 export type Tables<T extends keyof Database['public']['Tables']> =
   Database['public']['Tables'][T]['Row'];
-export type Enums<T extends keyof Database['public']['Enums']> =
-  Database['public']['Enums'][T];
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
 export type RpcName = keyof Database['public']['Functions'];
 export type RpcArgs<N extends RpcName> = Database['public']['Functions'][N]['Args'];
 export type RpcReturns<N extends RpcName> = Database['public']['Functions'][N]['Returns'];
