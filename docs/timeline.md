@@ -74,7 +74,7 @@
 | SV7 | 채팅 RPC·방송 | P4 | Day 6 | SV6 | ⬜ todo |
 | SV9 | 신고·제재·탈퇴·관리자 알림 | P4 | Day 7–8 | SV7 | ⬜ todo |
 | SV12 | QA 버그 수정 (서버) | P4 | Day 10 | J7 | ⬜ todo |
-| CL1 | Expo 프로젝트·기반 | P5 | Day 1 | J1 | ⬜ todo |
+| CL1 | Expo 프로젝트·기반 | P5 | Day 1 | J1 | 🟨 doing |
 | SV2 | 도메인·Resend DNS | P5 | Day 1 | — | ⬜ todo |
 | OP3 | 생활 구역·픽업 장소 수집 | P5 | Day 1–3 | J1 | ⬜ todo |
 | OP1 | 약관·개인정보처리방침·EULA | P5 | Day 2–4 | J1 | ⬜ todo |
@@ -86,7 +86,7 @@
 | SV10 | 보안 점검·production 구성 | P5 | Day 9–10 | SV9 | ⬜ todo |
 | CL9 | 베타 빌드 배포 | P5 | Day 10 | J7, SV10 | ⬜ todo |
 | SV11 | 심사 계정·지표·모니터링 | P5 | Day 10 | SV10 | ⬜ todo |
-| J1 | 킥오프 | J | Day 1 | — | ⬜ todo |
+| J1 | 킥오프 | J | Day 1 | — | ✅ done |
 | J2 | 계약 고정 | J | Day 2 | SV3, CL2 | ⬜ todo |
 | J3 | 인증 E2E 확인 | J | Day 4 | CL3, FE3, FE4, SV4 | ⬜ todo |
 | J4 | 1주차 데모 | J | Day 5 | CL4, FE6, SV6 | ⬜ todo |
