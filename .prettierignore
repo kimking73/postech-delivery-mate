@@ -1,0 +1,10 @@
+node_modules
+ios
+android
+dist
+.expo
+supabase
+docs
+package-lock.json
+.claude
+*.md

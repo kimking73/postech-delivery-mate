@@ -49,15 +49,15 @@ python3 docs/tasks/task.py gen               # timeline.md와 timeline.html 재�
 ## Git 규칙
 - **브랜치:** `feat/<태그 접두사 소문자>-<태그>-<요약>` (예: `feat/cl-CL3-auth`, `feat/op-OP1-legal`). 기능 동결(Day 8) 이후에는 `fix/*`만 만든다. 상태만 바꿀 때는 `chore/status-<태그>`를 쓴다.
 - **커밋:** `<태그>: <요약>`. 문서만 바꿀 때는 `docs: <요약>`.
-- **PR 제목:** `[<태그>] <작업명>`. PR은 1명 이상 리뷰하고 CI를 통과해야 머지한다.
+- **PR 제목:** `[<태그>] <작업명>`. PR은 CI를 통과하면 머지한다. 리뷰는 필수가 아니다.
 - **충돌:**
   - `docs/timeline.md`와 `docs/timeline.html`은 충돌을 직접 풀지 말고 `task.py gen`으로 다시 생성한다.
   - `tasks.json`의 status는 더 진행된 값을 고른다(todo < doing < done).
 - **비밀값 금지:** `.env*`, service_role 키, SMTP 비밀번호, 인증서(`.p8`, `.jks`)는 커밋하지 않는다.
 
 ## 기술 스택 요약
-Expo(dev client, Expo Router, TS strict) · TanStack Query · Zustand · NativeWind · FlashList · Supabase(서울 리전: Postgres, RLS, RPC, Realtime Broadcast, pg_cron, pgmq, Edge Functions) · Resend SMTP · Expo Push · Sentry · PostHog · EAS. 자세한 내용은 아키텍처 §0과 §1에 있다.
+Expo(dev client, Expo Router, TS strict) · TanStack Query · Zustand · NativeWind · FlashList · Supabase(서울 리전: Postgres, RLS, RPC, Realtime Broadcast, pg_cron, pgmq, Edge Functions) · Gmail SMTP(공용 계정, 앱 비밀번호) · Expo Push · Sentry · PostHog · EAS. 자세한 내용은 아키텍처 §0과 §1에 있다.
 
 ## 현재 상태
-- 앱 코드는 아직 없다. 첫 작업은 `J1`(킥오프), `CL1`(Expo 골격, P5), `SV1`(Supabase 환경, P4), `SV2`(도메인·Resend, P5), `OP3`(구역·픽업 장소 수집, P5), `FE1`(디자인 규칙, P2), `FE12`(화면 뼈대, P1)이다.
-- 아직 임시 값인 것: 앱 이름, 도메인(`example.kr`), 생활 구역 목록, 픽업 장소 목록.
+- 앱 코드는 아직 없다. 첫 작업은 `J1`(킥오프), `CL1`(Expo 골격, P5), `SV1`(Supabase 환경, P4), `SV2`(공용 Gmail SMTP, P5), `OP3`(구역·픽업 장소 수집, P5), `FE1`(디자인 규칙, P2), `FE12`(화면 뼈대, P1)이다.
+- 아직 임시 값인 것: 앱 이름, 공유 링크 도메인(`example.kr`), 생활 구역 목록, 픽업 장소 목록.
