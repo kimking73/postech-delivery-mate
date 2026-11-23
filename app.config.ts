@@ -21,6 +21,14 @@ const suffix: Record<Variant, { id: string; name: string }> = {
 
 const linkDomain = process.env.EXPO_PUBLIC_LINK_DOMAIN ?? 'example.kr';
 
+/**
+ * 무료 Apple 계정(Personal Team)으로 로컬 빌드(`npx expo run:ios --device`)할 때:
+ * - 번들 ID는 Apple 전체에서 한 팀만 쓸 수 있으므로 사람마다 DEV_BUNDLE_SUFFIX로 구분한다(.env.local).
+ * - Personal Team은 Associated Domains를 못 쓰므로 development에서는 넣지 않는다. 딥링크는 preview에서 확인한다.
+ */
+const devSuffix = variant === 'development' ? process.env.DEV_BUNDLE_SUFFIX?.trim() : undefined;
+const iosBundleId = BUNDLE_ID + suffix[variant].id + (devSuffix ? `.${devSuffix}` : '');
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: APP_NAME + suffix[variant].name,
@@ -32,9 +40,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   ios: {
-    bundleIdentifier: BUNDLE_ID + suffix[variant].id,
+    bundleIdentifier: iosBundleId,
     supportsTablet: false,
-    associatedDomains: [`applinks:${linkDomain}`],
+    ...(variant === 'development' ? {} : { associatedDomains: [`applinks:${linkDomain}`] }),
     infoPlist: { ITSAppUsesNonExemptEncryption: false },
   },
   android: {
