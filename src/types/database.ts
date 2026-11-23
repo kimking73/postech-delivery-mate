@@ -866,7 +866,12 @@ export type Database = {
       }
       email_pepper: { Args: never; Returns: string }
       get_feed: {
-        Args: { cursor_deadline?: string; limit?: number; zone_id: number }
+        Args: {
+          cursor_deadline?: string
+          cursor_id?: string
+          limit?: number
+          zone_id: number
+        }
         Returns: {
           category_id: number
           created_at: string
@@ -895,7 +900,12 @@ export type Database = {
         }[]
       }
       get_messages: {
-        Args: { before_id?: number; limit?: number; post_id: string }
+        Args: {
+          after_id?: number
+          before_id?: number
+          limit?: number
+          post_id: string
+        }
         Returns: {
           body: string
           client_msg_id: string | null
