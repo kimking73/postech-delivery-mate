@@ -5,15 +5,15 @@ name: db
 on:
   pull_request:
     paths:
-      - "supabase/**"
-      - "src/types/database.ts"
-      - ".github/workflows/db.yml"
+      - 'supabase/**'
+      - 'src/types/database.ts'
+      - '.github/workflows/db.yml'
   push:
     branches: [main]
     paths:
-      - "supabase/**"
-      - "src/types/database.ts"
-      - ".github/workflows/db.yml"
+      - 'supabase/**'
+      - 'src/types/database.ts'
+      - '.github/workflows/db.yml'
   workflow_dispatch:
 
 # PR은 새 push가 오면 이전 실행을 취소한다. main은 커밋마다 끝까지 검사한다.
@@ -42,11 +42,20 @@ jobs:
       - name: pgTAP
         run: supabase test db
 
+      # database.ts는 app.yml의 prettier 검사도 받으므로, 생성 결과를 prettier로 정리한 뒤 비교한다.
+      # prettier 버전은 package-lock.json과 같게 맞춘다(전체 npm ci는 하지 않는다).
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
       - name: database.ts가 최신인지 확인
         run: |
-          supabase gen types typescript --local --schema public > /tmp/database.ts
+          set -o pipefail
+          PRETTIER_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/prettier'].version")
+          supabase gen types typescript --local --schema public \
+            | npx --yes "prettier@${PRETTIER_VERSION}" --stdin-filepath src/types/database.ts > /tmp/database.ts
           if ! diff -u src/types/database.ts /tmp/database.ts; then
-            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npx supabase@2.58.5 gen types typescript --local --schema public > src/types/database.ts'로 다시 생성하세요."
+            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npx supabase@2.58.5 gen types typescript --local --schema public > src/types/database.ts && npx prettier --write src/types/database.ts'로 다시 생성하세요."
             exit 1
           fi
 
