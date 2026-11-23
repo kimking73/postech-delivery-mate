@@ -13,11 +13,13 @@ on:
     paths:
       - "supabase/**"
       - "src/types/database.ts"
+      - ".github/workflows/db.yml"
   workflow_dispatch:
 
+# PR은 새 push가 오면 이전 실행을 취소한다. main은 커밋마다 끝까지 검사한다.
 concurrency:
   group: db-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
@@ -44,7 +46,7 @@ jobs:
         run: |
           supabase gen types typescript --local --schema public > /tmp/database.ts
           if ! diff -u src/types/database.ts /tmp/database.ts; then
-            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npx supabase gen types typescript --local --schema public > src/types/database.ts'로 다시 생성하세요."
+            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npx supabase@2.58.5 gen types typescript --local --schema public > src/types/database.ts'로 다시 생성하세요."
             exit 1
           fi
 

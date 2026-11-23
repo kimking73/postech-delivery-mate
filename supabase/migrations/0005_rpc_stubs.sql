@@ -371,6 +371,16 @@ $$;
 -- ===========================================================================
 revoke execute on all functions in schema public from public, anon, authenticated;
 
+-- 앞으로 만드는 함수도 닫힌 상태로 시작한다. 위 revoke는 지금 있는 함수에만 적용되므로
+-- 기본 권한도 함께 회수한다. 새 RPC는 마이그레이션에서 grant를 명시해야 API로 열린다.
+--   - anon·authenticated: Supabase가 public 스키마에 준 기본 권한을 회수
+--   - PUBLIC: 스키마별 기본 권한으로는 회수할 수 없어 postgres 역할 전체 기본값에서 회수
+--     (service_role의 public 스키마 기본 권한은 그대로 둔다)
+alter default privileges for role postgres in schema public
+  revoke execute on functions from anon, authenticated;
+alter default privileges for role postgres
+  revoke execute on functions from public;
+
 -- 앱이 부르는 RPC: 로그인한 사용자만
 grant execute on function
   public.create_profile(text, smallint, boolean, boolean),
@@ -401,13 +411,17 @@ grant execute on function
 to authenticated;
 
 -- RLS 정책에서 쓰는 헬퍼(정책은 호출자 권한으로 평가되므로 authenticated에 필요)
+-- 아래 셋은 현재 사용자(auth.uid()) 자신에 대한 것만 답하므로 API로 노출돼도 괜찮다.
 grant execute on function
   public.is_verified_member(),
   public.is_participant(uuid),
-  public.is_blocked_between(uuid, uuid),
-  public.is_sanctioned(uuid),
   public.can_view_payout(uuid)
 to authenticated;
+
+-- is_blocked_between(a, b), is_sanctioned(uid)는 임의의 사용자 id를 받으므로 authenticated에 주지 않는다.
+-- 주면 /rpc/is_blocked_between, /rpc/is_sanctioned로 남의 차단 관계·제재 여부를 조회할 수 있다.
+-- RPC 본문(SECURITY DEFINER, 소유자 권한)에서는 그대로 쓸 수 있다.
+-- RLS 정책에서 써야 하면 API에 노출되지 않는 스키마(예: private)로 옮기고 그 스키마에 usage만 준다.
 
 -- assert_rate, assert_clean, assert_member, email_pepper: RPC 내부(소유자 권한)에서만 쓴다 → 추가 권한 없음
 

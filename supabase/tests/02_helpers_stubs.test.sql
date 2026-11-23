@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(27);
+select plan(32);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
@@ -118,5 +118,24 @@ set local role anon;
 select throws_ok($$ select public.join_post('10000000-0000-0000-0000-000000000001') $$, '42501', null, 'anon은 RPC 실행 권한이 없다');
 
 reset role;
+
+-- ---------------------------------------------------------------------------
+-- 실행 권한: 임의 id를 받는 헬퍼는 API로 노출하지 않는다. 새 함수는 닫힌 상태로 시작한다.
+-- ---------------------------------------------------------------------------
+select ok(not has_function_privilege('authenticated', 'public.is_blocked_between(uuid, uuid)', 'execute'),
+          'authenticated는 is_blocked_between을 직접 부를 수 없다(남의 차단 관계 노출 방지)');
+select ok(not has_function_privilege('authenticated', 'public.is_sanctioned(uuid)', 'execute'),
+          'authenticated는 is_sanctioned를 직접 부를 수 없다(남의 제재 여부 노출 방지)');
+select is((select count(*)::int
+             from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+            where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')),
+          0, 'anon이 실행할 수 있는 public 함수는 없다');
+
+create function public.__probe_default_privileges() returns int language sql as 'select 1';
+select ok(not has_function_privilege('anon', 'public.__probe_default_privileges()', 'execute'),
+          '새로 만든 함수는 anon이 실행할 수 없다(기본 권한 회수)');
+select ok(not has_function_privilege('authenticated', 'public.__probe_default_privileges()', 'execute'),
+          '새로 만든 함수는 grant 전까지 authenticated도 실행할 수 없다');
+
 select * from finish();
 rollback;
