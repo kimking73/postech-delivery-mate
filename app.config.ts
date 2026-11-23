@@ -24,6 +24,7 @@ const linkDomain = process.env.EXPO_PUBLIC_LINK_DOMAIN ?? 'example.kr';
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: APP_NAME + suffix[variant].name,
+  owner: 'kimking075s-team',
   slug: 'postech-delivery-mate',
   scheme: 'deliverymate',
   version: '1.0.0',
@@ -63,6 +64,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   experiments: { typedRoutes: true },
   extra: {
     appVariant: variant,
-    // eas init 후 projectId가 여기에 들어간다: eas: { projectId: '...' }
+    eas: { projectId: '41e4212f-7272-4097-b3ec-9dafb895f042' },
   },
 });
