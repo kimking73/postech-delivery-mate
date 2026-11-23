@@ -49,7 +49,7 @@ python3 docs/tasks/task.py gen               # timeline.md와 timeline.html 재�
 ## Git 규칙
 - **브랜치:** `feat/<태그 접두사 소문자>-<태그>-<요약>` (예: `feat/cl-CL3-auth`, `feat/op-OP1-legal`). 기능 동결(Day 8) 이후에는 `fix/*`만 만든다. 상태만 바꿀 때는 `chore/status-<태그>`를 쓴다.
 - **커밋:** `<태그>: <요약>`. 문서만 바꿀 때는 `docs: <요약>`.
-- **PR 제목:** `[<태그>] <작업명>`. PR은 1명 이상 리뷰하고 CI를 통과해야 머지한다.
+- **PR 제목:** `[<태그>] <작업명>`. PR은 CI를 통과하면 머지한다. 리뷰는 필수가 아니다.
 - **충돌:**
   - `docs/timeline.md`와 `docs/timeline.html`은 충돌을 직접 풀지 말고 `task.py gen`으로 다시 생성한다.
   - `tasks.json`의 status는 더 진행된 값을 고른다(todo < doing < done).
