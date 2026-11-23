@@ -1656,7 +1656,7 @@
       ],
       "dep": [],
       "done": "Gmail SMTP로 보낸 테스트 메일이 POSTECH 받은편지함에 도착(SPF·DKIM·DMARC pass)",
-      "status": "doing",
+      "status": "done",
       "refs": [
         "아키텍처 §0",
         "아키텍처 §3-2"
