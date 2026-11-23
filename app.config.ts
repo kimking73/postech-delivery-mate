@@ -10,8 +10,16 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 const APP_NAME = 'APP_NAME'; // 임시 앱 이름
 const BUNDLE_ID = 'kr.postech.deliverymate';
 
-type Variant = 'development' | 'preview' | 'production';
-const variant = (process.env.APP_VARIANT ?? 'development') as Variant;
+const VARIANTS = ['development', 'preview', 'production'] as const;
+type Variant = (typeof VARIANTS)[number];
+
+const rawVariant = process.env.APP_VARIANT ?? 'development';
+if (!(VARIANTS as readonly string[]).includes(rawVariant)) {
+  throw new Error(
+    `APP_VARIANT는 ${VARIANTS.join(' | ')} 중 하나여야 한다. 현재 값: "${rawVariant}"`,
+  );
+}
+const variant = rawVariant as Variant;
 
 const suffix: Record<Variant, { id: string; name: string }> = {
   development: { id: '.dev', name: ' (Dev)' },
@@ -71,7 +79,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ],
   // EAS Update (아키텍처 §11: main 머지 시 preview 채널로 배포)
   updates: { url: 'https://u.expo.dev/41e4212f-7272-4097-b3ec-9dafb895f042' },
-  runtimeVersion: { policy: 'appVersion' },
+  // 네이티브 구성이 바뀌면 런타임 버전도 바뀌어, 맞지 않는 JS 업데이트가 내려가지 않는다.
+  runtimeVersion: { policy: 'fingerprint' },
   experiments: { typedRoutes: true },
   extra: {
     appVariant: variant,
