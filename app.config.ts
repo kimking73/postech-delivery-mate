@@ -61,6 +61,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
   ],
+  // EAS Update (아키텍처 §11: main 머지 시 preview 채널로 배포)
+  updates: { url: 'https://u.expo.dev/41e4212f-7272-4097-b3ec-9dafb895f042' },
+  runtimeVersion: { policy: 'appVersion' },
   experiments: { typedRoutes: true },
   extra: {
     appVariant: variant,
