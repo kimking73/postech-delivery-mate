@@ -14,3 +14,10 @@ android/
 .DS_Store
 supabase/.branches
 supabase/.temp
+expo-env.d.ts
+.kotlin/
+*.orig.*
+.metro-health-check*
+npm-debug.*
+*.pem
+*.tsbuildinfo
