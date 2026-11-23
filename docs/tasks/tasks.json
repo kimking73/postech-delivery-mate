@@ -1626,7 +1626,7 @@
         "J1"
       ],
       "done": "5명 모두 dev client로 앱 실행",
-      "status": "doing",
+      "status": "done",
       "refs": [
         "아키텍처 §9",
         "아키텍처 §11"
