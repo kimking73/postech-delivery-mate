@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { LIMITS } from '@/constants/limits';
 import type { AppError } from '@/lib/errors';
 import { queryKeys } from '@/lib/queryClient';
-import type { HostAccount, MessageRow } from '@/types/database';
+import type { HostAccount, MessageRow } from '@/types/models';
 
 import * as api from './api';
 import type { SendMessageInput } from './schema';

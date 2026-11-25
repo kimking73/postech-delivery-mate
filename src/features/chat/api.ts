@@ -1,6 +1,6 @@
 import { LIMITS } from '@/constants/limits';
 import { callRpc, USE_MOCK } from '@/lib/supabase';
-import type { HostAccount, MessageRow } from '@/types/database';
+import type { HostAccount, MessageRow } from '@/types/models';
 import { MOCK_USER_ID, mockHostAccount, mockMessages, sleep } from '@/types/mockData';
 
 import type { SendMessageInput } from './schema';

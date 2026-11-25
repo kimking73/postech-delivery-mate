@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { AppError } from '@/lib/errors';
 import { queryKeys } from '@/lib/queryClient';
-import type { ProfileRow } from '@/types/database';
+import type { ProfileRow } from '@/types/models';
 
 import * as api from './api';
 import type { CreateProfileInput, UpdateProfileInput } from './schema';

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-import type { RpcArgs, RpcName, RpcReturns, Tables } from '@/types/database';
+import type { RpcArgs, RpcName, RpcReturns, TableName, Tables } from '@/types/models';
 
 import { toAppError } from './errors';
 import { mmkvAuthStorage } from './mmkv';
@@ -47,9 +47,9 @@ export async function callRpc<N extends RpcName>(
 }
 
 /** 테이블 SELECT 결과 타입 보조. 에러는 AppError로 던진다. */
-export async function selectRows<
-  T extends keyof import('@/types/database').Database['public']['Tables'],
->(run: () => PromiseLike<{ data: unknown; error: unknown }>): Promise<Tables<T>[]> {
+export async function selectRows<T extends TableName>(
+  run: () => PromiseLike<{ data: unknown; error: unknown }>,
+): Promise<Tables<T>[]> {
   const { data, error } = await run();
   if (error) throw toAppError(error);
   return (data ?? []) as Tables<T>[];

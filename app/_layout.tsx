@@ -1,7 +1,7 @@
 import '../global.css';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { type Href, Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -91,7 +91,8 @@ function AuthGate() {
   });
 
   useEffect(() => {
-    if (target) router.replace(target);
+    // TODO(FE12): (auth)/sign-in, profile-setup, (tabs) 화면이 생기면 typed routes가 경로를 알게 되므로 캐스팅을 지운다.
+    if (target) router.replace(target as Href);
   }, [target, router]);
 
   // 스플래시는 판단이 끝났거나(이동할 곳 없음) 에러 화면을 보여 줄 때 내린다. 에러에서 멈추지 않도록 한다.

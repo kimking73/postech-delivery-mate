@@ -14,7 +14,7 @@ import type {
   ProfileRow,
   RoomSummary,
   ZoneRow,
-} from './database';
+} from './models';
 
 export const MOCK_USER_ID = '00000000-0000-4000-8000-000000000001';
 const HOST_ID = '00000000-0000-4000-8000-000000000002';

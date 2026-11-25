@@ -1,6 +1,6 @@
 import { callRpc, supabase, USE_MOCK } from '@/lib/supabase';
 import { toAppError } from '@/lib/errors';
-import type { ProfileRow } from '@/types/database';
+import type { ProfileRow } from '@/types/models';
 import { mockProfile, sleep } from '@/types/mockData';
 
 import type { CreateProfileInput, UpdateProfileInput } from './schema';

@@ -10,7 +10,7 @@ import type {
   PostRow,
   RoomSummary,
   ZoneRow,
-} from '@/types/database';
+} from '@/types/models';
 import {
   MOCK_USER_ID,
   mockCategories,
@@ -62,22 +62,35 @@ const mockPostState = new Map<string, PostRow>(mockPosts.map((p) => [p.id, p]));
 const mockJoined = new Set<string>(mockJoinedPostIds);
 const mockHostNicknames = new Map<string, string>(); // 내가 만든 글의 방장 닉네임
 
+/** 피드 커서: 이전 페이지 마지막 행의 (deadline_at, id). 아키텍처 §4 get_feed */
+export interface FeedCursor {
+  deadline_at: string;
+  id: string;
+}
+
 export async function getFeed(
   zoneId: number,
-  cursorDeadline?: string | null,
+  cursor?: FeedCursor | null,
   limit: number = LIMITS.feed.pageSize,
 ): Promise<FeedPost[]> {
   if (USE_MOCK) {
     await sleep();
-    // 서버(get_feed)와 같이: 모집 중, 숨김 아님, 마감 시각 오름차순, 커서 이후부터
+    // 서버(get_feed)와 같이: 모집 중, 숨김 아님, (deadline_at, id) 오름차순, 커서 이후부터
+    const key = (p: { deadline_at: string; id: string }) => `${p.deadline_at}|${p.id}`;
     return [...mockPostState.values()]
       .filter((p) => p.zone_id === zoneId && p.status === 'open' && !p.hidden_at)
-      .filter((p) => !cursorDeadline || p.deadline_at > cursorDeadline)
-      .sort((a, b) => a.deadline_at.localeCompare(b.deadline_at))
+      .filter((p) => !cursor || key(p) > key(cursor))
+      .sort((a, b) => key(a).localeCompare(key(b)))
       .slice(0, limit)
       .map((p) => toFeedPost(p, mockHostNicknames.get(p.id)));
   }
-  return callRpc('get_feed', { zone_id: zoneId, cursor_deadline: cursorDeadline ?? null, limit });
+  // 커서 둘 중 하나만 보내면 서버가 INVALID_INPUT을 던진다. 항상 함께 보낸다.
+  return callRpc('get_feed', {
+    zone_id: zoneId,
+    cursor_deadline: cursor?.deadline_at ?? null,
+    cursor_id: cursor?.id ?? null,
+    limit,
+  });
 }
 
 export async function getPost(postId: string): Promise<PostRow> {

@@ -12,7 +12,7 @@ import type {
   PostRow,
   RoomSummary,
   ZoneRow,
-} from '@/types/database';
+} from '@/types/models';
 
 import * as api from './api';
 import type { CreatePostInput, PayoutAccountInput } from './schema';
@@ -53,7 +53,7 @@ export function useFeed(zoneId: number | null | undefined) {
     AppError,
     { pages: FeedPost[][] },
     ReturnType<typeof queryKeys.feed>,
-    string | null
+    api.FeedCursor | null
   >({
     queryKey: queryKeys.feed(zoneId ?? 0),
     enabled: zoneId != null,
@@ -62,7 +62,10 @@ export function useFeed(zoneId: number | null | undefined) {
     getNextPageParam: (last) =>
       last.length < LIMITS.feed.pageSize
         ? undefined
-        : (last[last.length - 1]?.deadline_at ?? undefined),
+        : (() => {
+            const tail = last[last.length - 1];
+            return tail ? { deadline_at: tail.deadline_at, id: tail.id } : undefined;
+          })(),
   });
 }
 
