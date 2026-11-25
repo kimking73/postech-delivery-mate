@@ -87,7 +87,7 @@
 | CL9 | 베타 빌드 배포 | P5 | Day 10 | J7, SV10 | ⬜ todo |
 | SV11 | 심사 계정·지표·모니터링 | P5 | Day 10 | SV10 | ⬜ todo |
 | J1 | 킥오프 | J | Day 1 | — | ✅ done |
-| J2 | 계약 고정 | J | Day 2 | SV3, CL2 | ⬜ todo |
+| J2 | 계약 고정 | J | Day 2 | SV3, CL2 | ✅ done |
 | J3 | 인증 E2E 확인 | J | Day 4 | CL3, FE3, FE4, SV4 | ⬜ todo |
 | J4 | 1주차 데모 | J | Day 5 | CL4, FE6, SV6 | ⬜ todo |
 | J5 | 채팅 E2E | J | Day 7 | CL5, CL6, FE8, SV8 | ⬜ todo |
