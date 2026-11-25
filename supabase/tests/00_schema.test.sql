@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(55);
+select plan(58);
 
 -- 테이블 16개(SV1 7 + SV3 9)
 select has_table('public', t, t || ' 테이블이 있다')
@@ -50,9 +50,12 @@ select has_function('public', 'mark_read', array['uuid', 'bigint']);
 select has_function('public', 'mark_paid', array['uuid']);
 select has_function('public', 'confirm_paid', array['uuid', 'uuid']);
 select has_function('public', 'reject_paid', array['uuid', 'uuid']);
-select has_function('public', 'get_feed', array['smallint', 'timestamp with time zone', 'integer']);
+select has_function('public', 'get_feed', array['smallint', 'timestamp with time zone', 'uuid', 'integer']);
+select hasnt_function('public', 'get_feed', array['smallint', 'timestamp with time zone', 'integer'], '옛 get_feed 시그니처가 남아 있지 않다(오버로드 금지)');
 select has_function('public', 'get_my_rooms', array[]::text[]);
-select has_function('public', 'get_messages', array['uuid', 'bigint', 'integer']);
+select has_function('public', 'get_messages', array['uuid', 'bigint', 'bigint', 'integer']);
+select hasnt_function('public', 'get_messages', array['uuid', 'bigint', 'integer'], '옛 get_messages 시그니처가 남아 있지 않다(오버로드 금지)');
+select has_index('public', 'posts', 'posts_feed_idx', array['zone_id', 'deadline_at', 'id'], 'posts_feed_idx가 (zone_id, deadline_at, id) 순서다');
 select has_function('public', 'report', array['report_target', 'text', 'report_reason', 'text', 'uuid']);
 select has_function('public', 'block_user', array['uuid']);
 select has_function('public', 'unblock_user', array['uuid']);
