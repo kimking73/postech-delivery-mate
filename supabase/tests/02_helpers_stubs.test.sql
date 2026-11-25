@@ -1,4 +1,4 @@
--- SV3: 헬퍼 함수(§2-3)와 RPC 스텁의 공통 검사(§4 머리말)
+-- SV3: 헬퍼 함수(§2-3)와 RPC 스텁의 공통 검사(§4 머리말). SV4에서 구현된 RPC에 맞춰 2건 수정
 begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
@@ -82,7 +82,8 @@ select throws_ok($$ select public.mark_paid('10000000-0000-0000-0000-00000000000
 
 -- 인증했지만 프로필 없음
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","email":"newbie@postech.ac.kr","role":"authenticated"}', true);
-select throws_ok($$ select public.create_profile('newbie', 1::smallint, true, true) $$, 'P0001', 'NOT_IMPLEMENTED', '프로필 없이 create_profile은 공통 검사를 통과한다(스텁)');
+-- 동의 false로 불러 프로필을 만들지 않고, 공통 검사를 통과해 본문 검사(INVALID_INPUT)까지 가는지만 본다(SV4 구현).
+select throws_ok($$ select public.create_profile('newbie', 1::smallint, false, true) $$, 'P0001', 'INVALID_INPUT', '프로필 없이 create_profile은 공통 검사를 통과한다');
 select throws_ok($$ select public.get_my_rooms() $$, 'P0001', 'PROFILE_REQUIRED', '프로필이 없으면 다른 RPC는 PROFILE_REQUIRED');
 
 -- 제재 중
@@ -110,8 +111,8 @@ select ok(not public.can_view_payout('10000000-0000-0000-0000-000000000001'), '�
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","email":"member@postech.ac.kr","role":"authenticated"}', true);
 select ok(public.can_view_payout('10000000-0000-0000-0000-000000000001'), '마감 후 joined 참여자는 계좌를 볼 수 있다');
 
--- 직접 테이블 접근은 RLS(정책 없음)로 막혀 있다
-select is((select count(*)::int from public.posts), 0, '정책이 없으므로 authenticated는 posts를 직접 읽을 수 없다');
+-- 직접 테이블 읽기는 RLS 정책(SV4, 0008)으로 연다. 자세한 검사는 03_rls
+select is((select count(*)::int from public.posts), 1, 'RLS: 인증된 참여자는 posts를 읽을 수 있다');
 
 reset role;
 set local role anon;

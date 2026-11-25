@@ -1366,7 +1366,7 @@
       "sum": "인증 이후의 권한 경계를 완성함.",
       "w": [
         "create_profile, update_profile",
-        "0004_rls: 전 테이블 정책, 직접 쓰기 REVOKE",
+        "0008_rls: 전 테이블 정책, 직접 쓰기 REVOKE",
         "pgTAP: 도메인 거부 4종, 미인증 토큰 조회 0건",
         "POSTECH 메일 수신 실측(받은편지함·도착 시간), 문제 시 즉시 공유",
         "set_payout_account, get_host_account 구현, payout_accounts RLS(본인만)",
@@ -1381,7 +1381,7 @@
         "J2"
       ],
       "done": "pgTAP 통과, POSTECH 메일함에 1분 안에 코드 도착 · 오전 중 main에 머지(받는 쪽이 오후에 바로 이어서 작업)",
-      "status": "todo",
+      "status": "done",
       "refs": [
         "아키텍처 §3-1",
         "아키텍처 §4",

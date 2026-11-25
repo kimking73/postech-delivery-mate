@@ -52,7 +52,7 @@ export const payoutAccountSchema = z
         .trim()
         .min(P.accountNumber.min)
         .max(P.accountNumber.max)
-        .regex(P.accountNumber.pattern, '숫자와 -만 입력할 수 있어요.')
+        .regex(P.accountNumber.pattern, '숫자와 -만 입력할 수 있어요(-는 숫자 사이에 하나씩).')
         .nullable()
         .optional(),
     ),
