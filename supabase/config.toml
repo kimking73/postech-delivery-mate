@@ -90,16 +90,7 @@ openai_api_key = "env(OPENAI_API_KEY)"
 
 # Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
 # are monitored, and you can view the emails that would have been sent from the web interface.
-[inbucket]
-enabled = true
-# Port to use for the email testing server web interface.
-port = 54324
-# Uncomment to expose additional ports for testing user applications that send emails.
-# smtp_port = 54325
-# pop3_port = 54326
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
-
+# [inbucket] 섹션은 두지 않는다: CLI v2는 [inbucket], v3는 [local_smtp]만 받아서 둘 다 기본값(메일 테스트 서버 on, 포트 54324)을 쓰게 한다.
 [storage]
 enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
