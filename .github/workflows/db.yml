@@ -7,12 +7,14 @@ on:
     paths:
       - 'supabase/**'
       - 'src/types/database.ts'
+      - 'package-lock.json'
       - '.github/workflows/db.yml'
   push:
     branches: [main]
     paths:
       - 'supabase/**'
       - 'src/types/database.ts'
+      - 'package-lock.json'
       - '.github/workflows/db.yml'
   workflow_dispatch:
 
@@ -28,9 +30,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # CLI 버전은 package.json(devDependencies의 supabase)에 고정한 값 하나만 쓴다. 로컬 `npx supabase`와 같은 버전이 된다.
+      # 버전을 올릴 때는 package.json만 바꾼다(docs/ops/supabase-cli.md).
+      - name: Supabase CLI 버전 읽기
+        id: cli
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/supabase'].version")" >> "$GITHUB_OUTPUT"
+
       - uses: supabase/setup-cli@v1
         with:
-          version: 2.58.5
+          version: ${{ steps.cli.outputs.version }}
 
       # 마이그레이션·seed는 start 때 처음 적용된다. 이어서 db reset으로 처음부터 다시 적용되는지도 확인한다.
       - name: Start Supabase (DB에 필요한 서비스만)
@@ -55,7 +63,7 @@ jobs:
           supabase gen types typescript --local --schema public \
             | npx --yes "prettier@${PRETTIER_VERSION}" --stdin-filepath src/types/database.ts > /tmp/database.ts
           if ! diff -u src/types/database.ts /tmp/database.ts; then
-            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npx supabase@2.58.5 gen types typescript --local --schema public > src/types/database.ts && npx prettier --write src/types/database.ts'로 다시 생성하세요."
+            echo "::error file=src/types/database.ts::마이그레이션과 타입이 다릅니다. 'npm ci' 후 'npx supabase gen types typescript --local --schema public > src/types/database.ts && npx prettier --write src/types/database.ts'로 다시 생성하세요(전역 supabase나 버전 없는 npx 금지, docs/ops/supabase-cli.md)."
             exit 1
           fi
 

@@ -27,3 +27,6 @@
 7. 앱에서 개발 서버(`npm start`가 띄운 주소)를 고른다.
 
 푸시 알림과 유니버설 링크는 무료 계정으로 테스트할 수 없다(유료 가입 후 preview 빌드에서 확인).
+
+## Supabase CLI (DB 작업하는 사람)
+`npm install`을 하면 CLI도 함께 설치된다. 항상 `npx supabase ...`로 실행한다(전역 `supabase` 금지). 버전 규칙, 원격 `db push` 권한, 문제 해결 방법은 [supabase-cli.md](supabase-cli.md)에 있다.
