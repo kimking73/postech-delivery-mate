@@ -9,8 +9,8 @@ const mockStore: MessageRow[] = [...mockMessages];
 let mockNextId = mockStore.length + 1;
 
 /**
- * 메시지는 id 내림차순(최신 → 과거)으로 온다고 가정한다(messages_room_idx (post_id, id DESC), §2-2).
- * `beforeId`보다 작은 id만, 최대 limit개. 정렬 방향이 다르면 SV7 명세 확인 후 여기서만 맞춘다.
+ * 최신 → 과거 방향으로 읽는다(id 내림차순, §4 get_messages).
+ * 커서가 없으면 최신 limit개, `beforeId`가 있으면 그보다 이전 limit개.
  */
 export async function getMessages(
   postId: string,
@@ -25,6 +25,27 @@ export async function getMessages(
       .slice(0, limit);
   }
   return callRpc('get_messages', { post_id: postId, before_id: beforeId ?? null, limit });
+}
+
+/**
+ * 앱이 백그라운드에서 돌아왔을 때 놓친 메시지를 채운다(§6). id 오름차순(오래된 것부터)으로 온다.
+ * 결과가 limit개로 꽉 차면 아직 더 있을 수 있으니, 마지막 id로 다시 부른다.
+ * 서버는 before_id와 after_id를 함께 받으면 INVALID_INPUT이므로 함수를 분리했다.
+ * 호출하는 쪽(재구독, 중복 제거)은 CL5에서 구현한다.
+ */
+export async function getMessagesAfter(
+  postId: string,
+  afterId: number,
+  limit: number = LIMITS.message.pageSize,
+): Promise<MessageRow[]> {
+  if (USE_MOCK) {
+    await sleep(150);
+    return mockStore
+      .filter((m) => m.post_id === postId && m.id > afterId)
+      .sort((a, b) => a.id - b.id)
+      .slice(0, limit);
+  }
+  return callRpc('get_messages', { post_id: postId, after_id: afterId, limit });
 }
 
 export async function sendMessage(input: SendMessageInput): Promise<MessageRow> {

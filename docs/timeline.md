@@ -59,7 +59,7 @@
 | DS7 | 앱 아이콘·스플래시 | P2 | Day 7–8 | FE1 | ⬜ todo |
 | FE10b | 디자인 마무리 검수 | P2 | Day 8 | J6 | ⬜ todo |
 | DS8 | 스토어 스크린샷 | P2 | Day 9–10 | FE10b | ⬜ todo |
-| CL2 | 인증 가드·타입·목 훅 | P3 | Day 2 | CL1, SV3 | 🟨 doing |
+| CL2 | 인증 가드·타입·목 훅 | P3 | Day 2 | CL1, SV3 | ✅ done |
 | CL3 | 인증 훅·실기기 E2E | P3 | Day 3–4 | CL2, SV4 | ⬜ todo |
 | CL4 | 피드·글·참여 훅 | P3 | Day 4–5 | CL3, SV5, J3 | ⬜ todo |
 | CL5 | 실시간 채팅 클라이언트 | P3 | Day 6–7 | CL4, SV7, J4 | ⬜ todo |
