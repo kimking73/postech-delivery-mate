@@ -36,10 +36,16 @@ end;
 $$;
 
 -- ===========================================================================
+-- 닉네임 중복은 대소문자를 무시한다(Abc와 abc는 같은 닉네임: 사칭 방지).
+--   위반 시 constraint_name = 'profiles_nickname_lower_key' → RPC가 NICKNAME_TAKEN으로 바꾼다.
+-- ===========================================================================
+create unique index profiles_nickname_lower_key on public.profiles (lower(nickname));
+
+-- ===========================================================================
 -- create_profile
 --   - 약관·EULA 동의가 둘 다 true가 아니면 INVALID_INPUT
 --   - 이미 프로필이 있으면 INVALID_STATE
---   - 닉네임 형식 INVALID_INPUT, 금칙어 BANNED_WORD, 중복 NICKNAME_TAKEN
+--   - 닉네임 형식 INVALID_INPUT, 금칙어 BANNED_WORD, 중복(대소문자 무시) NICKNAME_TAKEN
 --   - verified_at·terms_agreed_at·eula_agreed_at = now()
 --   - 탈퇴 기록(deleted_accounts)이 있으면 noshow_count를 이어 받는다(재가입으로 노쇼 기록 세탁 방지).
 --     3회 이상이면 hook(§3-1)에서 이미 가입이 막힌다.
@@ -73,7 +79,7 @@ begin
   perform public.assert_nickname(v_nick);
   perform public.assert_zone(create_profile.home_zone_id);
 
-  if exists (select 1 from public.profiles p where p.nickname = v_nick) then
+  if exists (select 1 from public.profiles p where lower(p.nickname) = lower(v_nick)) then
     raise exception using errcode = 'P0001', message = 'NICKNAME_TAKEN';
   end if;
 
@@ -123,7 +129,7 @@ begin
 
   if v_nick is not null then
     perform public.assert_nickname(v_nick);
-    if exists (select 1 from public.profiles p where p.nickname = v_nick and p.id <> v_uid) then
+    if exists (select 1 from public.profiles p where lower(p.nickname) = lower(v_nick) and p.id <> v_uid) then
       raise exception using errcode = 'P0001', message = 'NICKNAME_TAKEN';
     end if;
   end if;
@@ -152,7 +158,7 @@ $$;
 -- ===========================================================================
 -- set_payout_account: 본인 계좌 upsert. 빈 문자열은 null로 본다. 모두 null이면 행을 삭제한다.
 --   - 은행 3필드(bank_name, account_number, account_holder)는 모두 채우거나 모두 비운다.
---   - bank_name 1~30자, account_number 숫자와 '-'만 10~20자, account_holder 2~20자
+--   - bank_name 1~30자, account_number 숫자 묶음을 '-' 하나로 이은 형식(예: 123-456-7890) 10~20자, account_holder 2~20자
 --   - toss_link는 https://toss.me/<아이디> 형식, 200자 이하
 --   - 은행 계좌나 toss_link 중 하나는 있어야 한다(§2-2 check)
 --   어긋나면 INVALID_INPUT.
@@ -181,7 +187,7 @@ begin
 
   if (v_bank is null) <> (v_number is null) or (v_bank is null) <> (v_holder is null)
      or (v_bank is not null and char_length(v_bank) not between 1 and 30)
-     or (v_number is not null and (v_number !~ '^[0-9-]+$' or char_length(v_number) not between 10 and 20))
+     or (v_number is not null and (v_number !~ '^[0-9]+(-[0-9]+)*$' or char_length(v_number) not between 10 and 20))
      or (v_holder is not null and char_length(v_holder) not between 2 and 20)
      or (v_toss is not null and (v_toss !~ '^https://toss\.me/[^/\s?#]+/?$' or char_length(v_toss) > 200)) then
     raise exception using errcode = 'P0001', message = 'INVALID_INPUT';

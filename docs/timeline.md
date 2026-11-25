@@ -736,7 +736,7 @@ J7에서 나온 훅·세션·실시간·푸시 수신 버그를 수정함.
 
 **세부 작업**
 1. create_profile, update_profile
-2. 0004_rls: 전 테이블 정책, 직접 쓰기 REVOKE
+2. 0008_rls: 전 테이블 정책, 직접 쓰기 REVOKE
 3. pgTAP: 도메인 거부 4종, 미인증 토큰 조회 0건
 4. POSTECH 메일 수신 실측(받은편지함·도착 시간), 문제 시 즉시 공유
 5. set_payout_account, get_host_account 구현, payout_accounts RLS(본인만)

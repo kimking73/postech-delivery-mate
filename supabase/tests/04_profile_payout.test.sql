@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(43);
+select plan(46);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
@@ -85,15 +85,18 @@ select throws_ok($$ select public.update_profile(nickname => '방장') $$, 'P000
 select throws_ok($$ select public.update_profile(nickname => '나쁜말') $$, 'P0001', 'BANNED_WORD', 'update_profile: 금칙어는 BANNED_WORD');
 select throws_ok($$ select public.update_profile(nickname => '') $$, 'P0001', 'INVALID_INPUT', 'update_profile: 빈 닉네임은 INVALID_INPUT');
 select throws_ok($$ select public.update_profile(home_zone_id => 3::smallint) $$, 'P0001', 'INVALID_INPUT', 'update_profile: 비활성 구역은 INVALID_INPUT');
+select is((select p.nickname from public.update_profile(nickname => 'Mate') p), 'Mate', 'update_profile: 영문 닉네임으로 바꾼다');
 
 -- ===========================================================================
 -- set_payout_account
 -- ===========================================================================
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","email":"host@postech.ac.kr","role":"authenticated"}', true);
 
+select throws_ok($$ select public.update_profile(nickname => 'mate') $$, 'P0001', 'NICKNAME_TAKEN', 'update_profile: 대소문자만 다른 닉네임은 NICKNAME_TAKEN');
 select throws_ok($$ select public.set_payout_account(bank_name => '국민') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: 은행 3필드 중 일부만 주면 INVALID_INPUT');
 select throws_ok($$ select public.set_payout_account('국민', '12-34', '방장') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: 9자 이하 계좌번호는 INVALID_INPUT');
 select throws_ok($$ select public.set_payout_account('국민', '1234-5678-90ab', '방장') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: 숫자·- 외 문자는 INVALID_INPUT');
+select throws_ok($$ select public.set_payout_account('국민', '----------', '방장') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: 숫자 없이 -만 있으면 INVALID_INPUT');
 select throws_ok($$ select public.set_payout_account('국민', '123-456-7890', '방') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: 1자 예금주는 INVALID_INPUT');
 select throws_ok($$ select public.set_payout_account(toss_link => 'https://evil.com/toss.me/x') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: toss.me가 아닌 링크는 INVALID_INPUT');
 select throws_ok($$ select public.set_payout_account(toss_link => 'http://toss.me/host') $$, 'P0001', 'INVALID_INPUT', 'set_payout_account: http 링크는 INVALID_INPUT');

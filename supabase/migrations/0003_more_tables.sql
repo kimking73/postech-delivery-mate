@@ -1,7 +1,7 @@
 -- SV3: 나머지 테이블 (아키텍처 §2-2)
 -- reports, blocks, sanctions, push_tokens, category_subscriptions, banned_words,
 -- deleted_accounts, rate_events, payout_accounts
--- 모든 테이블에 RLS를 켠다. 정책은 SV4(0006_rls)에서 추가한다.
+-- 모든 테이블에 RLS를 켠다. 정책은 SV4(0008_rls)에서 추가한다.
 -- posts.pay_due_at·pay_reminded_at, participants.paid_at은 0002에 이미 있다.
 
 -- ---------------------------------------------------------------------------

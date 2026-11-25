@@ -19,7 +19,7 @@ export const LIMITS = {
   payout: {
     bankName: { min: 1, max: 30 },
     tossLinkMax: 200,
-    accountNumber: { min: 10, max: 20, pattern: /^[0-9-]+$/ },
+    accountNumber: { min: 10, max: 20, pattern: /^[0-9]+(-[0-9]+)*$/ },
     holder: { min: 2, max: 20 },
     tossLinkPrefix: 'https://toss.me/',
   },

@@ -1366,7 +1366,7 @@
       "sum": "인증 이후의 권한 경계를 완성함.",
       "w": [
         "create_profile, update_profile",
-        "0004_rls: 전 테이블 정책, 직접 쓰기 REVOKE",
+        "0008_rls: 전 테이블 정책, 직접 쓰기 REVOKE",
         "pgTAP: 도메인 거부 4종, 미인증 토큰 조회 0건",
         "POSTECH 메일 수신 실측(받은편지함·도착 시간), 문제 시 즉시 공유",
         "set_payout_account, get_host_account 구현, payout_accounts RLS(본인만)",
