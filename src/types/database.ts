@@ -43,10 +43,24 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'blocks_blocked_id_fkey';
+            columns: ['blocked_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'blocks_blocker_id_fkey';
             columns: ['blocker_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'blocks_blocker_id_fkey';
+            columns: ['blocker_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -104,6 +118,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'category_subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
           {
@@ -179,6 +200,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'messages_sender_id_fkey';
+            columns: ['sender_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       participants: {
@@ -233,6 +261,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'participants_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       payout_accounts: {
@@ -266,6 +301,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: true;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'payout_accounts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -388,6 +430,13 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'posts_host_id_fkey';
+            columns: ['host_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'posts_pickup_place_id_zone_id_fkey';
             columns: ['pickup_place_id', 'zone_id'];
             isOneToOne: false;
@@ -489,6 +538,13 @@ export type Database = {
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'push_tokens_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       rate_events: {
@@ -516,6 +572,13 @@ export type Database = {
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'rate_events_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -572,10 +635,24 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'reports_handled_by_fkey';
+            columns: ['handled_by'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'reports_reporter_id_fkey';
             columns: ['reporter_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_reporter_id_fkey';
+            columns: ['reporter_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
           {
@@ -597,6 +674,13 @@ export type Database = {
             columns: ['target_user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_target_user_id_fkey';
+            columns: ['target_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -641,10 +725,24 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
+            foreignKeyName: 'sanctions_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
+            referencedColumns: ['id'];
+          },
+          {
             foreignKeyName: 'sanctions_user_id_fkey';
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'sanctions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'public_profiles';
             referencedColumns: ['id'];
           },
         ];
@@ -672,7 +770,24 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      public_profiles: {
+        Row: {
+          id: string | null;
+          nickname: string | null;
+          noshow_level: string | null;
+        };
+        Insert: {
+          id?: string | null;
+          nickname?: string | null;
+          noshow_level?: never;
+        };
+        Update: {
+          id?: string | null;
+          nickname?: string | null;
+          noshow_level?: never;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       assert_clean: { Args: { p_text: string }; Returns: undefined };
@@ -680,10 +795,12 @@ export type Database = {
         Args: { p_require_profile?: boolean };
         Returns: undefined;
       };
+      assert_nickname: { Args: { p_nickname: string }; Returns: undefined };
       assert_rate: {
         Args: { p_action: string; p_max: number; p_window: unknown };
         Returns: undefined;
       };
+      assert_zone: { Args: { p_zone_id: number }; Returns: undefined };
       block_user: { Args: { user_id: string }; Returns: undefined };
       can_view_payout: { Args: { p_post: string }; Returns: boolean };
       cancel_post: {
@@ -939,6 +1056,7 @@ export type Database = {
         }[];
       };
       hook_before_user_created: { Args: { event: Json }; Returns: Json };
+      is_admin: { Args: never; Returns: boolean };
       is_blocked_between: { Args: { a: string; b: string }; Returns: boolean };
       is_participant: { Args: { p_post: string }; Returns: boolean };
       is_sanctioned: { Args: { uid: string }; Returns: boolean };
