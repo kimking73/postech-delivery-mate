@@ -4,7 +4,7 @@ import { LIMITS } from '@/constants/limits';
 
 /**
  * target_id: post·user는 uuid, message는 bigint를 문자열로 넘긴다. noshow는 대상 사용자 id다(SV3 스텁 주석).
- * post_id: noshow 신고에서 어느 방인지 알려 준다. §4 표에 없는 추가 인자라 아키텍처 반영 승인 대기 중이다(J2에서 확정).
+ * post_id: noshow 신고에서 어느 방인지 알려 준다(방 단위로 1회 집계, §4-3). 서버에서 확정됨: noshow는 필수, 다른 대상은 무시.
  */
 export const reportSchema = z
   .object({
