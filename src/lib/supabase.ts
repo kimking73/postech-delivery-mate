@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import Constants from 'expo-constants';
 
 import type { RpcArgs, RpcName, RpcReturns, TableName, Tables } from '@/types/models';
 
@@ -8,12 +9,22 @@ import { mmkvAuthStorage } from './mmkv';
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+/** app.config.ts의 extra.appVariant: development | preview | production */
+export const APP_VARIANT = String(Constants.expoConfig?.extra?.appVariant ?? 'development');
+
 /**
  * 목 모드: Supabase 환경변수가 없거나 EXPO_PUBLIC_USE_MOCK=1이면 켜진다.
  * 각 feature의 api.ts가 이 값을 보고 목 데이터 또는 실제 RPC 중 하나를 쓴다.
  * SV3 머지 후 .env에 URL/KEY를 넣고 EXPO_PUBLIC_USE_MOCK=0으로 바꾸면 된다.
+ * development 빌드에서만 허용한다. preview·production에서 env가 빠졌는데 가짜 데이터로
+ * 정상처럼 보이면 QA에서 놓치므로, 시작할 때 바로 실패시킨다.
  */
 export const USE_MOCK = process.env.EXPO_PUBLIC_USE_MOCK === '1' || url === '' || anonKey === '';
+if (USE_MOCK && APP_VARIANT !== 'development') {
+  throw new Error(
+    `[supabase] ${APP_VARIANT} 빌드는 목 모드로 실행할 수 없다. EAS 환경변수 EXPO_PUBLIC_SUPABASE_URL·EXPO_PUBLIC_SUPABASE_ANON_KEY를 넣고 EXPO_PUBLIC_USE_MOCK을 빼라.`,
+  );
+}
 
 /**
  * 임시 수기 타입 단계에서는 비제네릭 클라이언트를 쓴다(supabase-js 제네릭이 gen types 모양을 요구).

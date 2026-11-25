@@ -22,6 +22,8 @@ insert into public.profiles (id, nickname) values
   ('00000000-0000-0000-0000-00000000000c', 'outsider'),
   ('00000000-0000-0000-0000-00000000000f', 'bad');
 
+-- 기준 데이터(seed·0009 categories)를 비우고 테스트용 값만 넣는다(트랜잭션이라 끝나면 되돌아간다)
+delete from public.pickup_places; delete from public.zones; delete from public.categories;
 insert into public.zones (id, name) values (1, '테스트구역');
 insert into public.categories (id, name) values (1, '치킨');
 insert into public.pickup_places (id, zone_id, name) values (1, 1, '로비');

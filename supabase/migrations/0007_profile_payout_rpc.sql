@@ -48,7 +48,7 @@ create unique index profiles_nickname_lower_key on public.profiles (lower(nickna
 --   - 닉네임 형식 INVALID_INPUT, 금칙어 BANNED_WORD, 중복(대소문자 무시) NICKNAME_TAKEN
 --   - verified_at·terms_agreed_at·eula_agreed_at = now()
 --   - 탈퇴 기록(deleted_accounts)이 있으면 noshow_count를 이어 받는다(재가입으로 노쇼 기록 세탁 방지).
---     3회 이상이면 hook(§3-1)에서 이미 가입이 막힌다.
+--     정지 기간이 남은 채 탈퇴했으면 hook(§3-1, 0009 blocked_until)에서 이미 가입이 막힌다.
 -- ===========================================================================
 create or replace function public.create_profile(
   nickname      text,

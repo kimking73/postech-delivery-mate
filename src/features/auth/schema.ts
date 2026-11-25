@@ -3,13 +3,16 @@ import { z } from 'zod';
 import { LIMITS } from '@/constants/limits';
 
 export const POSTECH_DOMAIN = '@postech.ac.kr';
+export const POSTECH_EMAIL_PATTERN = /^[a-z0-9._%-]+@postech\.ac\.kr$/;
 
 export const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
   .email('메일 형식이 올바르지 않아요.')
-  .refine((v) => v.endsWith(POSTECH_DOMAIN), 'POSTECH 메일(@postech.ac.kr)로만 가입할 수 있어요.');
+  .refine((v) => v.endsWith(POSTECH_DOMAIN), 'POSTECH 메일(@postech.ac.kr)로만 가입할 수 있어요.')
+  // 서버 is_postech_email(0009)과 같은 규칙. '+' 주소는 한 사람이 여러 계정을 만들 수 있어 막는다.
+  .refine((v) => POSTECH_EMAIL_PATTERN.test(v), '+ 없이 POSTECH 메일 주소 그대로 입력해 주세요.');
 
 /** 아키텍처 §3-2: 최소 8자, 영문과 숫자 필수 */
 export const passwordSchema = z

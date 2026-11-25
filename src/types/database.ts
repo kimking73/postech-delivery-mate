@@ -138,16 +138,19 @@ export type Database = {
       };
       deleted_accounts: {
         Row: {
+          blocked_until: string | null;
           deleted_at: string;
           email_hash: string;
           noshow_count: number;
         };
         Insert: {
+          blocked_until?: string | null;
           deleted_at?: string;
           email_hash: string;
           noshow_count?: number;
         };
         Update: {
+          blocked_until?: string | null;
           deleted_at?: string;
           email_hash?: string;
           noshow_count?: number;
@@ -1058,7 +1061,9 @@ export type Database = {
       hook_before_user_created: { Args: { event: Json }; Returns: Json };
       is_admin: { Args: never; Returns: boolean };
       is_blocked_between: { Args: { a: string; b: string }; Returns: boolean };
+      is_confirmed_postech: { Args: never; Returns: boolean };
       is_participant: { Args: { p_post: string }; Returns: boolean };
+      is_postech_email: { Args: { p_email: string }; Returns: boolean };
       is_sanctioned: { Args: { uid: string }; Returns: boolean };
       is_verified_member: { Args: never; Returns: boolean };
       join_post: {

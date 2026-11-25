@@ -132,6 +132,8 @@ export function toAppError(e: unknown): AppError {
     return new AppError('EMAIL_RATE_LIMITED', e);
   }
   if (lower.includes('postech') || lower.includes('domain')) return new AppError('EMAIL_DOMAIN', e);
+  // hook(§3-1)의 두 번째 거절: 정지 기간이 남은 채 탈퇴한 메일로 재가입
+  if (message.includes('이용이 제한된 계정')) return new AppError('SANCTIONED', e);
   if (lower.includes('network') || lower.includes('failed to fetch') || lower.includes('timeout')) {
     return new AppError('NETWORK', e);
   }

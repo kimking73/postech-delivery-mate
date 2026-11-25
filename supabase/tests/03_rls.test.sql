@@ -4,18 +4,19 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(42);
+select plan(44);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
---   a: 방장, b: 멤버, c: 나간 사람·p3 방장, x: 관리자, e: 메일 미인증(프로필 없음)
+--   a: 방장, b: 멤버, c: 나간 사람·p3 방장, x: 관리자, e: 메일 미인증(프로필 없음), n: 메일 인증 완료·프로필 없음
 -- ---------------------------------------------------------------------------
 insert into auth.users (id, email, email_confirmed_at, aud, role) values
   ('00000000-0000-0000-0000-00000000000a', 'host@postech.ac.kr',    now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000000b', 'member@postech.ac.kr',  now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000000c', 'outsider@postech.ac.kr', now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-0000000000ad', 'admin@postech.ac.kr',   now(), 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-00000000000e', 'pending@postech.ac.kr', null,  'authenticated', 'authenticated');
+  ('00000000-0000-0000-0000-00000000000e', 'pending@postech.ac.kr', null,  'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-00000000000f', 'newbie@postech.ac.kr',  now(), 'authenticated', 'authenticated');
 
 insert into public.profiles (id, nickname, noshow_count, is_admin) values
   ('00000000-0000-0000-0000-00000000000a', 'host',     0, false),
@@ -23,6 +24,8 @@ insert into public.profiles (id, nickname, noshow_count, is_admin) values
   ('00000000-0000-0000-0000-00000000000c', 'outsider', 1, false),
   ('00000000-0000-0000-0000-0000000000ad', 'admin',    3, true);
 
+-- 기준 데이터(seed·0009 categories)를 비우고 테스트용 값만 넣는다(트랜잭션이라 끝나면 되돌아간다)
+delete from public.pickup_places; delete from public.zones; delete from public.categories;
 insert into public.zones (id, name) values (1, '테스트구역');
 insert into public.categories (id, name) values (1, '치킨');
 insert into public.pickup_places (id, zone_id, name) values (1, 1, '로비');
@@ -95,6 +98,13 @@ select is(array(select t from rls_counts where n > 0), '{}'::text[], '토큰 없
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","email":"pending@postech.ac.kr","role":"authenticated"}', true);
 select is(array(select t from rls_counts where n > 0), '{}'::text[], '메일 미인증 토큰: 모든 테이블 0건');
+
+-- 메일 인증은 마쳤지만 프로필이 없는 사용자(profile-setup 화면): 기준 데이터만 읽는다
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","email":"newbie@postech.ac.kr","role":"authenticated"}', true);
+select is(array(select t from rls_counts where n > 0 order by t), array['categories', 'pickup_places', 'zones'],
+  '프로필 없는 인증 사용자: zones·pickup_places·categories만 읽는다(구역을 골라 create_profile 가능)');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","email":"newbie+2@postech.ac.kr","role":"authenticated"}', true);
+select is(array(select t from rls_counts where n > 0), '{}'::text[], 'plus 주소(+) 메일 토큰: 모든 테이블 0건');
 
 -- hook 누락 사고 가정: 프로필까지 있는 사용자지만 JWT 메일이 POSTECH가 아니다
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","email":"member@gmail.com","role":"authenticated"}', true);
