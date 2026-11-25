@@ -67,7 +67,7 @@
 | CL7a | 신고·차단 훅 | P3 | Day 8 | CL4, SV9 | ⬜ todo |
 | CL10 | QA 버그 수정 (앱 로직) | P3 | Day 10 | J7 | ⬜ todo |
 | SV1 | Supabase 환경·핵심 테이블 | P4 | Day 1 | J1 | ✅ done |
-| SV3 | 나머지 테이블·RPC 스텁·Auth 설정 | P4 | Day 2 | SV1, SV2 | ⬜ todo |
+| SV3 | 나머지 테이블·RPC 스텁·Auth 설정 | P4 | Day 2 | SV1, SV2 | 🟨 doing |
 | SV4 | 프로필 RPC·RLS·메일 실측 | P4 | Day 3 | SV3, J2 | ⬜ todo |
 | SV5 | 글·참여 RPC | P4 | Day 4 | SV4, OP3 | ⬜ todo |
 | SV6 | 상태 전이·cron | P4 | Day 5 | SV5 | ⬜ todo |

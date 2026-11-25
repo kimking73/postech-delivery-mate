@@ -1,286 +1,1210 @@
-/**
- * 임시 수기 타입 (CL2). 아키텍처 §2-2(테이블), §4(RPC)를 옮기고,
- * RPC 시그니처·반환 열은 feat/sv-SV3-contract-stubs의 0005_rpc_stubs.sql(2026-11-22 기준)에 맞췄다.
- * SV3 머지 후 `supabase gen types typescript` 결과로 이 파일을 통째로 교체한다.
- * 교체해도 앱 코드가 깨지지 않도록 아래 이름(Database, Tables, Enums, Rpc*)만 쓴다.
- * 이 파일의 소유자는 P4(SV)이므로, 교체 후에는 직접 고치지 않는다.
- */
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type PostStatus = 'open' | 'closed' | 'completed' | 'canceled';
-export type ParticipantRole = 'host' | 'member';
-export type ParticipantState = 'joined' | 'left' | 'dropped' | 'kicked';
-export type PaidState = 'none' | 'sent' | 'confirmed';
-export type MessageType = 'text' | 'system';
-export type ReportTarget = 'post' | 'message' | 'user' | 'noshow';
-export type ReportReason =
-  'spam' | 'abuse' | 'scam' | 'inappropriate' | 'noshow' | 'unpaid' | 'other';
-export type ReportStatus = 'pending' | 'actioned' | 'dismissed';
-export type SanctionType = 'warn' | 'suspend' | 'ban';
-export type PushPlatform = 'ios' | 'android';
-
-type Uuid = string;
-type Timestamp = string; // ISO 8601 (UTC)
-
-export interface ZoneRow {
-  id: number;
-  name: string;
-  sort_order: number;
-  is_active: boolean;
-}
-
-export interface PickupPlaceRow {
-  id: number;
-  zone_id: number;
-  name: string;
-  sort_order: number;
-  is_active: boolean;
-}
-
-export interface CategoryRow {
-  id: number;
-  name: string;
-  emoji: string | null;
-  sort_order: number;
-}
-
-export interface ProfileRow {
-  id: Uuid;
-  nickname: string;
-  home_zone_id: number | null;
-  verified_at: Timestamp | null;
-  noshow_count: number;
-  notify_chat: boolean;
-  notify_post_events: boolean;
-  notify_marketing: boolean;
-  eula_agreed_at: Timestamp | null;
-  terms_agreed_at: Timestamp | null;
-  is_admin: boolean;
-  deleted_at: Timestamp | null;
-  created_at: Timestamp;
-}
-
-export interface PostRow {
-  id: Uuid;
-  host_id: Uuid;
-  zone_id: number;
-  category_id: number;
-  store_name: string;
-  store_url: string | null;
-  pickup_place_id: number;
-  pickup_note: string | null;
-  max_members: number;
-  member_count: number;
-  deadline_at: Timestamp;
-  fee_note: string | null;
-  memo: string | null;
-  status: PostStatus;
-  closed_at: Timestamp | null;
-  completed_at: Timestamp | null;
-  canceled_at: Timestamp | null;
-  pay_due_at: Timestamp | null;
-  pay_reminded_at: Timestamp | null;
-  hidden_at: Timestamp | null;
-  created_at: Timestamp;
-}
-
-export interface ParticipantRow {
-  post_id: Uuid;
-  user_id: Uuid;
-  role: ParticipantRole;
-  state: ParticipantState;
-  paid_state: PaidState;
-  paid_at: Timestamp | null;
-  muted: boolean;
-  last_read_message_id: number;
-  joined_at: Timestamp;
-  left_at: Timestamp | null;
-}
-
-export interface MessageRow {
-  id: number;
-  post_id: Uuid;
-  sender_id: Uuid | null; // 시스템 메시지는 null
-  type: MessageType;
-  body: string;
-  client_msg_id: Uuid | null;
-  hidden_at: Timestamp | null;
-  created_at: Timestamp;
-}
-
-export interface PayoutAccountRow {
-  user_id: Uuid;
-  bank_name: string | null;
-  account_number: string | null;
-  account_holder: string | null;
-  toss_link: string | null;
-  updated_at: Timestamp;
-}
-
-export interface BlockRow {
-  blocker_id: Uuid;
-  blocked_id: Uuid;
-  created_at: Timestamp;
-}
-
-/**
- * get_feed 반환 행. SV3 스텁이 돌려주는 열만 담는다.
- * zone_id는 입력 인자와 이름이 겹쳐 반환에서 빠졌다(요청한 구역 그대로). hidden_at·closed_at·pay_due_at 등도 없다.
- */
-export interface FeedPost {
-  id: Uuid;
-  host_id: Uuid;
-  host_nickname: string;
-  category_id: number;
-  store_name: string;
-  store_url: string | null;
-  pickup_place_id: number;
-  pickup_note: string | null;
-  max_members: number;
-  member_count: number;
-  deadline_at: Timestamp;
-  fee_note: string | null;
-  memo: string | null;
-  status: PostStatus;
-  created_at: Timestamp;
-}
-
-/** get_my_rooms 반환 행 (평평한 열). 마지막 메시지가 없는 방은 last_message_* 가 null이다. */
-export interface RoomSummary {
-  post_id: Uuid;
-  store_name: string;
-  category_id: number;
-  status: PostStatus;
-  role: ParticipantRole;
-  paid_state: PaidState;
-  member_count: number;
-  max_members: number;
-  deadline_at: Timestamp;
-  pay_due_at: Timestamp | null;
-  muted: boolean;
-  last_message_id: number | null;
-  last_message_type: MessageType | null;
-  last_message_body: string | null;
-  last_message_at: Timestamp | null;
-  unread_count: number; // 최대 99
-}
-
-export interface HostAccount {
-  bank_name: string | null;
-  account_number: string | null;
-  account_holder: string | null;
-  toss_link: string | null;
-}
-
-export interface Database {
+export type Database = {
   public: {
     Tables: {
-      zones: { Row: ZoneRow };
-      pickup_places: { Row: PickupPlaceRow };
-      categories: { Row: CategoryRow };
-      profiles: { Row: ProfileRow };
-      posts: { Row: PostRow };
-      participants: { Row: ParticipantRow };
-      messages: { Row: MessageRow };
-      payout_accounts: { Row: PayoutAccountRow };
-      blocks: { Row: BlockRow };
+      banned_words: {
+        Row: {
+          created_at: string;
+          word: string;
+        };
+        Insert: {
+          created_at?: string;
+          word: string;
+        };
+        Update: {
+          created_at?: string;
+          word?: string;
+        };
+        Relationships: [];
+      };
+      blocks: {
+        Row: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at: string;
+        };
+        Insert: {
+          blocked_id: string;
+          blocker_id: string;
+          created_at?: string;
+        };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'blocks_blocked_id_fkey';
+            columns: ['blocked_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'blocks_blocker_id_fkey';
+            columns: ['blocker_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      categories: {
+        Row: {
+          emoji: string | null;
+          id: number;
+          name: string;
+          sort_order: number;
+        };
+        Insert: {
+          emoji?: string | null;
+          id?: number;
+          name: string;
+          sort_order?: number;
+        };
+        Update: {
+          emoji?: string | null;
+          id?: number;
+          name?: string;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+      category_subscriptions: {
+        Row: {
+          category_id: number;
+          created_at: string;
+          user_id: string;
+          zone_id: number;
+        };
+        Insert: {
+          category_id: number;
+          created_at?: string;
+          user_id: string;
+          zone_id: number;
+        };
+        Update: {
+          category_id?: number;
+          created_at?: string;
+          user_id?: string;
+          zone_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'category_subscriptions_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'category_subscriptions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'category_subscriptions_zone_id_fkey';
+            columns: ['zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      deleted_accounts: {
+        Row: {
+          deleted_at: string;
+          email_hash: string;
+          noshow_count: number;
+        };
+        Insert: {
+          deleted_at?: string;
+          email_hash: string;
+          noshow_count?: number;
+        };
+        Update: {
+          deleted_at?: string;
+          email_hash?: string;
+          noshow_count?: number;
+        };
+        Relationships: [];
+      };
+      messages: {
+        Row: {
+          body: string;
+          client_msg_id: string | null;
+          created_at: string;
+          hidden_at: string | null;
+          id: number;
+          post_id: string;
+          sender_id: string | null;
+          type: Database['public']['Enums']['message_type'];
+        };
+        Insert: {
+          body: string;
+          client_msg_id?: string | null;
+          created_at?: string;
+          hidden_at?: string | null;
+          id?: never;
+          post_id: string;
+          sender_id?: string | null;
+          type?: Database['public']['Enums']['message_type'];
+        };
+        Update: {
+          body?: string;
+          client_msg_id?: string | null;
+          created_at?: string;
+          hidden_at?: string | null;
+          id?: never;
+          post_id?: string;
+          sender_id?: string | null;
+          type?: Database['public']['Enums']['message_type'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'messages_post_id_fkey';
+            columns: ['post_id'];
+            isOneToOne: false;
+            referencedRelation: 'posts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'messages_sender_id_fkey';
+            columns: ['sender_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      participants: {
+        Row: {
+          joined_at: string;
+          last_read_message_id: number;
+          left_at: string | null;
+          muted: boolean;
+          paid_at: string | null;
+          paid_state: Database['public']['Enums']['paid_state'];
+          post_id: string;
+          role: Database['public']['Enums']['participant_role'];
+          state: Database['public']['Enums']['participant_state'];
+          user_id: string;
+        };
+        Insert: {
+          joined_at?: string;
+          last_read_message_id?: number;
+          left_at?: string | null;
+          muted?: boolean;
+          paid_at?: string | null;
+          paid_state?: Database['public']['Enums']['paid_state'];
+          post_id: string;
+          role?: Database['public']['Enums']['participant_role'];
+          state?: Database['public']['Enums']['participant_state'];
+          user_id: string;
+        };
+        Update: {
+          joined_at?: string;
+          last_read_message_id?: number;
+          left_at?: string | null;
+          muted?: boolean;
+          paid_at?: string | null;
+          paid_state?: Database['public']['Enums']['paid_state'];
+          post_id?: string;
+          role?: Database['public']['Enums']['participant_role'];
+          state?: Database['public']['Enums']['participant_state'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'participants_post_id_fkey';
+            columns: ['post_id'];
+            isOneToOne: false;
+            referencedRelation: 'posts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'participants_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      payout_accounts: {
+        Row: {
+          account_holder: string | null;
+          account_number: string | null;
+          bank_name: string | null;
+          toss_link: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          account_holder?: string | null;
+          account_number?: string | null;
+          bank_name?: string | null;
+          toss_link?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          account_holder?: string | null;
+          account_number?: string | null;
+          bank_name?: string | null;
+          toss_link?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'payout_accounts_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      pickup_places: {
+        Row: {
+          id: number;
+          is_active: boolean;
+          name: string;
+          sort_order: number;
+          zone_id: number;
+        };
+        Insert: {
+          id?: number;
+          is_active?: boolean;
+          name: string;
+          sort_order?: number;
+          zone_id: number;
+        };
+        Update: {
+          id?: number;
+          is_active?: boolean;
+          name?: string;
+          sort_order?: number;
+          zone_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pickup_places_zone_id_fkey';
+            columns: ['zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      posts: {
+        Row: {
+          canceled_at: string | null;
+          category_id: number;
+          closed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string | null;
+          hidden_at: string | null;
+          host_id: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string | null;
+          pay_due_at: string | null;
+          pay_reminded_at: string | null;
+          pickup_note: string | null;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string | null;
+          zone_id: number;
+        };
+        Insert: {
+          canceled_at?: string | null;
+          category_id: number;
+          closed_at?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          deadline_at: string;
+          fee_note?: string | null;
+          hidden_at?: string | null;
+          host_id: string;
+          id?: string;
+          max_members: number;
+          member_count?: number;
+          memo?: string | null;
+          pay_due_at?: string | null;
+          pay_reminded_at?: string | null;
+          pickup_note?: string | null;
+          pickup_place_id: number;
+          status?: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url?: string | null;
+          zone_id: number;
+        };
+        Update: {
+          canceled_at?: string | null;
+          category_id?: number;
+          closed_at?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          deadline_at?: string;
+          fee_note?: string | null;
+          hidden_at?: string | null;
+          host_id?: string;
+          id?: string;
+          max_members?: number;
+          member_count?: number;
+          memo?: string | null;
+          pay_due_at?: string | null;
+          pay_reminded_at?: string | null;
+          pickup_note?: string | null;
+          pickup_place_id?: number;
+          status?: Database['public']['Enums']['post_status'];
+          store_name?: string;
+          store_url?: string | null;
+          zone_id?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'posts_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'posts_host_id_fkey';
+            columns: ['host_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'posts_pickup_place_id_zone_id_fkey';
+            columns: ['pickup_place_id', 'zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'pickup_places';
+            referencedColumns: ['id', 'zone_id'];
+          },
+          {
+            foreignKeyName: 'posts_zone_id_fkey';
+            columns: ['zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      profiles: {
+        Row: {
+          created_at: string;
+          deleted_at: string | null;
+          eula_agreed_at: string | null;
+          home_zone_id: number | null;
+          id: string;
+          is_admin: boolean;
+          nickname: string;
+          noshow_count: number;
+          notify_chat: boolean;
+          notify_marketing: boolean;
+          notify_post_events: boolean;
+          terms_agreed_at: string | null;
+          verified_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          deleted_at?: string | null;
+          eula_agreed_at?: string | null;
+          home_zone_id?: number | null;
+          id: string;
+          is_admin?: boolean;
+          nickname: string;
+          noshow_count?: number;
+          notify_chat?: boolean;
+          notify_marketing?: boolean;
+          notify_post_events?: boolean;
+          terms_agreed_at?: string | null;
+          verified_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          deleted_at?: string | null;
+          eula_agreed_at?: string | null;
+          home_zone_id?: number | null;
+          id?: string;
+          is_admin?: boolean;
+          nickname?: string;
+          noshow_count?: number;
+          notify_chat?: boolean;
+          notify_marketing?: boolean;
+          notify_post_events?: boolean;
+          terms_agreed_at?: string | null;
+          verified_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_home_zone_id_fkey';
+            columns: ['home_zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      push_tokens: {
+        Row: {
+          expo_token: string;
+          id: string;
+          platform: Database['public']['Enums']['push_platform'];
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          expo_token: string;
+          id?: string;
+          platform: Database['public']['Enums']['push_platform'];
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          expo_token?: string;
+          id?: string;
+          platform?: Database['public']['Enums']['push_platform'];
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'push_tokens_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      rate_events: {
+        Row: {
+          action: string;
+          created_at: string;
+          id: number;
+          user_id: string;
+        };
+        Insert: {
+          action: string;
+          created_at?: string;
+          id?: never;
+          user_id: string;
+        };
+        Update: {
+          action?: string;
+          created_at?: string;
+          id?: never;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'rate_events_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      reports: {
+        Row: {
+          created_at: string;
+          detail: string | null;
+          handled_at: string | null;
+          handled_by: string | null;
+          id: string;
+          reason: Database['public']['Enums']['report_reason'];
+          reporter_id: string;
+          status: Database['public']['Enums']['report_status'];
+          target_message_id: number | null;
+          target_post_id: string | null;
+          target_type: Database['public']['Enums']['report_target'];
+          target_user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          detail?: string | null;
+          handled_at?: string | null;
+          handled_by?: string | null;
+          id?: string;
+          reason: Database['public']['Enums']['report_reason'];
+          reporter_id: string;
+          status?: Database['public']['Enums']['report_status'];
+          target_message_id?: number | null;
+          target_post_id?: string | null;
+          target_type: Database['public']['Enums']['report_target'];
+          target_user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          detail?: string | null;
+          handled_at?: string | null;
+          handled_by?: string | null;
+          id?: string;
+          reason?: Database['public']['Enums']['report_reason'];
+          reporter_id?: string;
+          status?: Database['public']['Enums']['report_status'];
+          target_message_id?: number | null;
+          target_post_id?: string | null;
+          target_type?: Database['public']['Enums']['report_target'];
+          target_user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reports_handled_by_fkey';
+            columns: ['handled_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_reporter_id_fkey';
+            columns: ['reporter_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_target_message_id_fkey';
+            columns: ['target_message_id'];
+            isOneToOne: false;
+            referencedRelation: 'messages';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_target_post_id_fkey';
+            columns: ['target_post_id'];
+            isOneToOne: false;
+            referencedRelation: 'posts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_target_user_id_fkey';
+            columns: ['target_user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      sanctions: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          ends_at: string | null;
+          id: string;
+          reason: string | null;
+          starts_at: string;
+          type: Database['public']['Enums']['sanction_type'];
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          reason?: string | null;
+          starts_at?: string;
+          type: Database['public']['Enums']['sanction_type'];
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_at?: string | null;
+          id?: string;
+          reason?: string | null;
+          starts_at?: string;
+          type?: Database['public']['Enums']['sanction_type'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sanctions_created_by_fkey';
+            columns: ['created_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'sanctions_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      zones: {
+        Row: {
+          id: number;
+          is_active: boolean;
+          name: string;
+          sort_order: number;
+        };
+        Insert: {
+          id?: number;
+          is_active?: boolean;
+          name: string;
+          sort_order?: number;
+        };
+        Update: {
+          id?: number;
+          is_active?: boolean;
+          name?: string;
+          sort_order?: number;
+        };
+        Relationships: [];
+      };
+    };
+    Views: {
+      [_ in never]: never;
     };
     Functions: {
-      create_profile: {
-        Args: { nickname: string; home_zone_id: number; agree_terms: boolean; agree_eula: boolean };
-        Returns: ProfileRow;
-      };
-      set_payout_account: {
-        Args: {
-          bank_name?: string | null;
-          account_number?: string | null;
-          account_holder?: string | null;
-          toss_link?: string | null;
-        };
+      assert_clean: { Args: { p_text: string }; Returns: undefined };
+      assert_member: {
+        Args: { p_require_profile?: boolean };
         Returns: undefined;
       };
-      /** returns table → 행 배열로 온다(권한이 있고 계좌가 있으면 1행, 없으면 빈 배열). */
-      get_host_account: { Args: { post_id: Uuid }; Returns: HostAccount[] };
-      update_profile: {
-        Args: {
-          nickname?: string;
-          home_zone_id?: number;
-          notify_chat?: boolean;
-          notify_post_events?: boolean;
-          notify_marketing?: boolean;
+      assert_rate: {
+        Args: { p_action: string; p_max: number; p_window: unknown };
+        Returns: undefined;
+      };
+      block_user: { Args: { user_id: string }; Returns: undefined };
+      can_view_payout: { Args: { p_post: string }; Returns: boolean };
+      cancel_post: {
+        Args: { post_id: string; reason?: string };
+        Returns: {
+          canceled_at: string | null;
+          category_id: number;
+          closed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string | null;
+          hidden_at: string | null;
+          host_id: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string | null;
+          pay_due_at: string | null;
+          pay_reminded_at: string | null;
+          pickup_note: string | null;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string | null;
+          zone_id: number;
         };
-        Returns: ProfileRow;
+        SetofOptions: {
+          from: '*';
+          to: 'posts';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      close_post: {
+        Args: { post_id: string };
+        Returns: {
+          canceled_at: string | null;
+          category_id: number;
+          closed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string | null;
+          hidden_at: string | null;
+          host_id: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string | null;
+          pay_due_at: string | null;
+          pay_reminded_at: string | null;
+          pickup_note: string | null;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string | null;
+          zone_id: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'posts';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      complete_post: {
+        Args: { post_id: string };
+        Returns: {
+          canceled_at: string | null;
+          category_id: number;
+          closed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string | null;
+          hidden_at: string | null;
+          host_id: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string | null;
+          pay_due_at: string | null;
+          pay_reminded_at: string | null;
+          pickup_note: string | null;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string | null;
+          zone_id: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'posts';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      confirm_paid: {
+        Args: { post_id: string; user_id: string };
+        Returns: undefined;
       };
       create_post: {
         Args: {
-          zone_id: number;
           category_id: number;
-          store_name: string;
-          store_url?: string | null;
-          pickup_place_id: number;
-          pickup_note?: string | null;
-          max_members: number;
           deadline_minutes: number;
-          fee_note?: string | null;
-          memo?: string | null;
+          fee_note?: string;
+          max_members: number;
+          memo?: string;
+          pickup_note?: string;
+          pickup_place_id: number;
+          store_name: string;
+          store_url?: string;
+          zone_id: number;
         };
-        Returns: PostRow;
+        Returns: {
+          canceled_at: string | null;
+          category_id: number;
+          closed_at: string | null;
+          completed_at: string | null;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string | null;
+          hidden_at: string | null;
+          host_id: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string | null;
+          pay_due_at: string | null;
+          pay_reminded_at: string | null;
+          pickup_note: string | null;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string | null;
+          zone_id: number;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'posts';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
       };
-      join_post: { Args: { post_id: Uuid }; Returns: ParticipantRow };
-      leave_post: { Args: { post_id: Uuid }; Returns: undefined };
-      kick_member: { Args: { post_id: Uuid; user_id: Uuid }; Returns: undefined };
-      close_post: { Args: { post_id: Uuid }; Returns: PostRow };
-      complete_post: { Args: { post_id: Uuid }; Returns: PostRow };
-      cancel_post: { Args: { post_id: Uuid; reason?: string | null }; Returns: PostRow };
-      send_message: {
-        Args: { post_id: Uuid; body: string; client_msg_id: Uuid };
-        Returns: MessageRow;
-      };
-      mark_read: { Args: { post_id: Uuid; message_id: number }; Returns: undefined };
-      mark_paid: { Args: { post_id: Uuid }; Returns: undefined };
-      confirm_paid: { Args: { post_id: Uuid; user_id: Uuid }; Returns: undefined };
-      reject_paid: { Args: { post_id: Uuid; user_id: Uuid }; Returns: undefined };
-      get_feed: {
-        Args: { zone_id: number; cursor_deadline?: Timestamp | null; limit?: number };
-        Returns: FeedPost[];
-      };
-      get_my_rooms: { Args: Record<string, never>; Returns: RoomSummary[] };
-      get_messages: {
-        Args: { post_id: Uuid; before_id?: number | null; limit?: number };
-        Returns: MessageRow[];
-      };
-      report: {
+      create_profile: {
         Args: {
-          target_type: ReportTarget;
-          target_id: string;
-          reason: ReportReason;
-          detail?: string | null;
-          /** noshow 신고는 어느 방인지 필요하다. §4 표에 없는 추가 인자(승인 대기, J2에서 확정). */
-          post_id?: Uuid | null;
+          agree_eula: boolean;
+          agree_terms: boolean;
+          home_zone_id: number;
+          nickname: string;
+        };
+        Returns: {
+          created_at: string;
+          deleted_at: string | null;
+          eula_agreed_at: string | null;
+          home_zone_id: number | null;
+          id: string;
+          is_admin: boolean;
+          nickname: string;
+          noshow_count: number;
+          notify_chat: boolean;
+          notify_marketing: boolean;
+          notify_post_events: boolean;
+          terms_agreed_at: string | null;
+          verified_at: string | null;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'profiles';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      email_pepper: { Args: never; Returns: string };
+      get_feed: {
+        Args: {
+          cursor_deadline?: string;
+          cursor_id?: string;
+          limit?: number;
+          zone_id: number;
+        };
+        Returns: {
+          category_id: number;
+          created_at: string;
+          deadline_at: string;
+          fee_note: string;
+          host_id: string;
+          host_nickname: string;
+          id: string;
+          max_members: number;
+          member_count: number;
+          memo: string;
+          pickup_note: string;
+          pickup_place_id: number;
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          store_url: string;
+        }[];
+      };
+      get_host_account: {
+        Args: { post_id: string };
+        Returns: {
+          account_holder: string;
+          account_number: string;
+          bank_name: string;
+          toss_link: string;
+        }[];
+      };
+      get_messages: {
+        Args: {
+          after_id?: number;
+          before_id?: number;
+          limit?: number;
+          post_id: string;
+        };
+        Returns: {
+          body: string;
+          client_msg_id: string | null;
+          created_at: string;
+          hidden_at: string | null;
+          id: number;
+          post_id: string;
+          sender_id: string | null;
+          type: Database['public']['Enums']['message_type'];
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'messages';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      get_my_rooms: {
+        Args: never;
+        Returns: {
+          category_id: number;
+          deadline_at: string;
+          last_message_at: string;
+          last_message_body: string;
+          last_message_id: number;
+          last_message_type: Database['public']['Enums']['message_type'];
+          max_members: number;
+          member_count: number;
+          muted: boolean;
+          paid_state: Database['public']['Enums']['paid_state'];
+          pay_due_at: string;
+          post_id: string;
+          role: Database['public']['Enums']['participant_role'];
+          status: Database['public']['Enums']['post_status'];
+          store_name: string;
+          unread_count: number;
+        }[];
+      };
+      hook_before_user_created: { Args: { event: Json }; Returns: Json };
+      is_blocked_between: { Args: { a: string; b: string }; Returns: boolean };
+      is_participant: { Args: { p_post: string }; Returns: boolean };
+      is_sanctioned: { Args: { uid: string }; Returns: boolean };
+      is_verified_member: { Args: never; Returns: boolean };
+      join_post: {
+        Args: { post_id: string };
+        Returns: {
+          joined_at: string;
+          last_read_message_id: number;
+          left_at: string | null;
+          muted: boolean;
+          paid_at: string | null;
+          paid_state: Database['public']['Enums']['paid_state'];
+          post_id: string;
+          role: Database['public']['Enums']['participant_role'];
+          state: Database['public']['Enums']['participant_state'];
+          user_id: string;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'participants';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      kick_member: {
+        Args: { post_id: string; user_id: string };
+        Returns: undefined;
+      };
+      leave_post: { Args: { post_id: string }; Returns: undefined };
+      mark_paid: { Args: { post_id: string }; Returns: undefined };
+      mark_read: {
+        Args: { message_id: number; post_id: string };
+        Returns: undefined;
+      };
+      register_push_token: {
+        Args: {
+          platform: Database['public']['Enums']['push_platform'];
+          token: string;
         };
         Returns: undefined;
       };
-      block_user: { Args: { user_id: Uuid }; Returns: undefined };
-      unblock_user: { Args: { user_id: Uuid }; Returns: undefined };
-      register_push_token: { Args: { token: string; platform: PushPlatform }; Returns: undefined };
-      subscribe_category: { Args: { zone_id: number; category_id: number }; Returns: undefined };
-      unsubscribe_category: { Args: { zone_id: number; category_id: number }; Returns: undefined };
+      reject_paid: {
+        Args: { post_id: string; user_id: string };
+        Returns: undefined;
+      };
+      report: {
+        Args: {
+          detail?: string;
+          post_id?: string;
+          reason: Database['public']['Enums']['report_reason'];
+          target_id: string;
+          target_type: Database['public']['Enums']['report_target'];
+        };
+        Returns: undefined;
+      };
+      send_message: {
+        Args: { body: string; client_msg_id: string; post_id: string };
+        Returns: {
+          body: string;
+          client_msg_id: string | null;
+          created_at: string;
+          hidden_at: string | null;
+          id: number;
+          post_id: string;
+          sender_id: string | null;
+          type: Database['public']['Enums']['message_type'];
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'messages';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
+      set_payout_account: {
+        Args: {
+          account_holder?: string;
+          account_number?: string;
+          bank_name?: string;
+          toss_link?: string;
+        };
+        Returns: undefined;
+      };
+      subscribe_category: {
+        Args: { category_id: number; zone_id: number };
+        Returns: undefined;
+      };
+      unblock_user: { Args: { user_id: string }; Returns: undefined };
+      unsubscribe_category: {
+        Args: { category_id: number; zone_id: number };
+        Returns: undefined;
+      };
+      update_profile: {
+        Args: {
+          home_zone_id?: number;
+          nickname?: string;
+          notify_chat?: boolean;
+          notify_marketing?: boolean;
+          notify_post_events?: boolean;
+        };
+        Returns: {
+          created_at: string;
+          deleted_at: string | null;
+          eula_agreed_at: string | null;
+          home_zone_id: number | null;
+          id: string;
+          is_admin: boolean;
+          nickname: string;
+          noshow_count: number;
+          notify_chat: boolean;
+          notify_marketing: boolean;
+          notify_post_events: boolean;
+          terms_agreed_at: string | null;
+          verified_at: string | null;
+        };
+        SetofOptions: {
+          from: '*';
+          to: 'profiles';
+          isOneToOne: true;
+          isSetofReturn: false;
+        };
+      };
     };
     Enums: {
-      post_status: PostStatus;
-      participant_role: ParticipantRole;
-      participant_state: ParticipantState;
-      paid_state: PaidState;
-      message_type: MessageType;
-      report_target: ReportTarget;
-      report_reason: ReportReason;
-      report_status: ReportStatus;
+      message_type: 'text' | 'system';
+      paid_state: 'none' | 'sent' | 'confirmed';
+      participant_role: 'host' | 'member';
+      participant_state: 'joined' | 'left' | 'dropped' | 'kicked';
+      post_status: 'open' | 'closed' | 'completed' | 'canceled';
+      push_platform: 'ios' | 'android';
+      report_reason: 'spam' | 'abuse' | 'scam' | 'inappropriate' | 'noshow' | 'unpaid' | 'other';
+      report_status: 'pending' | 'actioned' | 'dismissed';
+      report_target: 'post' | 'message' | 'user' | 'noshow';
+      sanction_type: 'warn' | 'suspend' | 'ban';
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
-}
+};
 
-export type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row'];
-export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
-export type RpcName = keyof Database['public']['Functions'];
-export type RpcArgs<N extends RpcName> = Database['public']['Functions'][N]['Args'];
-export type RpcReturns<N extends RpcName> = Database['public']['Functions'][N]['Returns'];
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>];
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+      Row: infer R;
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R;
+      }
+      ? R
+      : never
+    : never;
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Insert: infer I;
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I;
+      }
+      ? I
+      : never
+    : never;
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema['Tables'] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+      Update: infer U;
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U;
+      }
+      ? U
+      : never
+    : never;
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    keyof DefaultSchema['Enums'] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    keyof DefaultSchema['CompositeTypes'] | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+    : never;
+
+export const Constants = {
+  public: {
+    Enums: {
+      message_type: ['text', 'system'],
+      paid_state: ['none', 'sent', 'confirmed'],
+      participant_role: ['host', 'member'],
+      participant_state: ['joined', 'left', 'dropped', 'kicked'],
+      post_status: ['open', 'closed', 'completed', 'canceled'],
+      push_platform: ['ios', 'android'],
+      report_reason: ['spam', 'abuse', 'scam', 'inappropriate', 'noshow', 'unpaid', 'other'],
+      report_status: ['pending', 'actioned', 'dismissed'],
+      report_target: ['post', 'message', 'user', 'noshow'],
+      sanction_type: ['warn', 'suspend', 'ban'],
+    },
+  },
+} as const;
