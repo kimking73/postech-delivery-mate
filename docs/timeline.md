@@ -746,7 +746,7 @@ J7에서 나온 훅·세션·실시간·푸시 수신 버그를 수정함.
 |---|---|---|
 | RLS 정책, 인증 pgTAP | SV3 나머지 테이블·RPC 스텁·Auth 설정, J2 계약 고정 | pgTAP 통과, POSTECH 메일함에 1분 안에 코드 도착 · 오전 중 main에 머지(받는 쪽이 오후에 바로 이어서 작업) |
 
-참조: 아키텍처 §3-1, 아키텍처 §4, 아키텍처 §5, 아키텍처 §2-2, 아키텍처 §2-3 · 수정 허용: `supabase/migrations/**`, `supabase/tests/**`, `supabase/seed.sql`, `supabase/config.toml`, `supabase/functions/delete-account/**`, `supabase/functions/admin-alert/**`, `src/types/database.ts`
+참조: 아키텍처 §3-1, 아키텍처 §4, 아키텍처 §5, 아키텍처 §2-2, 아키텍처 §2-3 · 수정 허용: `supabase/migrations/**`, `supabase/tests/**`, `supabase/seed.sql`, `supabase/config.toml`, `supabase/templates/**`, `supabase/functions/delete-account/**`, `supabase/functions/admin-alert/**`, `src/types/database.ts`
 
 #### SV5 · 글·참여 RPC  
 `Day 4` · 1일 · 1주차
@@ -828,6 +828,7 @@ J7에서 나온 훅·세션·실시간·푸시 수신 버그를 수정함.
 4. Edge Function admin-alert: reports → Slack (Slack 웹훅 직접 호출, 푸시 파이프라인과 무관)
 5. 관심 카테고리 구독 RPC와 새 글 알림 — 푸시 발송 연결은 SV8 머지 후
 6. delete-account: payout_accounts 행 즉시 삭제
+7. delete-account: deleted_accounts.blocked_until 기록(유효한 suspend의 ends_at 최댓값, ban은 infinity). 90일 정리 cron은 blocked_until > now() 행을 남김(아키텍처 §2-2, PR #15). 구현 전까지 정지 사용자가 탈퇴 후 재가입 가능
 
 | 산출물 | 선행 작업 | 완료 기준 |
 |---|---|---|
