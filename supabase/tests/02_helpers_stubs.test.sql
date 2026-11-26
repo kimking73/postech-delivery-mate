@@ -22,14 +22,13 @@ insert into public.profiles (id, nickname) values
   ('00000000-0000-0000-0000-00000000000c', 'outsider'),
   ('00000000-0000-0000-0000-00000000000f', 'bad');
 
--- 기준 데이터(seed·0009 categories)를 비우고 테스트용 값만 넣는다(트랜잭션이라 끝나면 되돌아간다)
-delete from public.pickup_places; delete from public.zones; delete from public.categories;
-insert into public.zones (id, name) values (1, '테스트구역');
-insert into public.categories (id, name) values (1, '치킨');
-insert into public.pickup_places (id, zone_id, name) values (1, 1, '로비');
+-- 기준 데이터는 지우지 않는다(로컬 DB의 개발용 행이 참조하면 FK 위반). 겹치지 않는 테스트 전용 id(901~)와 이름을 쓴다
+insert into public.zones (id, name) values (901, '__t_구역');
+insert into public.categories (id, name) values (901, '__t_치킨');
+insert into public.pickup_places (id, zone_id, name) values (901, 901, '__t_로비');
 
 insert into public.posts (id, host_id, zone_id, category_id, store_name, pickup_place_id, max_members, member_count, deadline_at)
-values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 1, 1, '치킨집', 1, 4, 2,
+values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 901, 901, '치킨집', 901, 4, 2,
         now() + interval '30 minutes');
 
 insert into public.participants (post_id, user_id, role, state) values
@@ -75,7 +74,7 @@ select throws_ok($$ select public.join_post('10000000-0000-0000-0000-00000000000
 
 -- 메일 미인증
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","email":"pending@postech.ac.kr","role":"authenticated"}', true);
-select throws_ok($$ select public.create_profile('pending', 1::smallint, true, true) $$, 'P0001', 'NOT_VERIFIED', '메일 미인증이면 create_profile도 NOT_VERIFIED');
+select throws_ok($$ select public.create_profile('pending', 901::smallint, true, true) $$, 'P0001', 'NOT_VERIFIED', '메일 미인증이면 create_profile도 NOT_VERIFIED');
 
 -- JWT 메일이 POSTECH가 아님(hook 누락 사고 대비)
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","email":"member@gmail.com","role":"authenticated"}', true);
@@ -85,7 +84,7 @@ select throws_ok($$ select public.mark_paid('10000000-0000-0000-0000-00000000000
 -- 인증했지만 프로필 없음
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","email":"newbie@postech.ac.kr","role":"authenticated"}', true);
 -- 동의 false로 불러 프로필을 만들지 않고, 공통 검사를 통과해 본문 검사(INVALID_INPUT)까지 가는지만 본다(SV4 구현).
-select throws_ok($$ select public.create_profile('newbie', 1::smallint, false, true) $$, 'P0001', 'INVALID_INPUT', '프로필 없이 create_profile은 공통 검사를 통과한다');
+select throws_ok($$ select public.create_profile('newbie', 901::smallint, false, true) $$, 'P0001', 'INVALID_INPUT', '프로필 없이 create_profile은 공통 검사를 통과한다');
 select throws_ok($$ select public.get_my_rooms() $$, 'P0001', 'PROFILE_REQUIRED', '프로필이 없으면 다른 RPC는 PROFILE_REQUIRED');
 
 -- 제재 중
@@ -97,7 +96,7 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select ok(public.is_verified_member(), '인증·프로필이 있으면 is_verified_member = true');
 select ok(public.is_participant('10000000-0000-0000-0000-000000000001'), 'joined 참여자는 is_participant = true');
 select ok(not public.can_view_payout('10000000-0000-0000-0000-000000000001'), '모집 중(open)에는 참여자도 계좌를 볼 수 없다');
-select throws_ok($$ select * from public.get_feed(1::smallint) $$, 'P0001', 'NOT_IMPLEMENTED', '공통 검사를 통과하면 스텁은 NOT_IMPLEMENTED');
+select throws_ok($$ select * from public.get_feed(901::smallint) $$, 'P0001', 'NOT_IMPLEMENTED', '공통 검사를 통과하면 스텁은 NOT_IMPLEMENTED');
 
 -- 나간 사람
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","email":"outsider@postech.ac.kr","role":"authenticated"}', true);

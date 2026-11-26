@@ -8,7 +8,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(2);
+select plan(3);
 
 select is_empty(
   $$ select c.relname::text
@@ -20,15 +20,29 @@ select is_empty(
   'public 스키마의 모든 테이블에 RLS가 켜져 있다(빠진 테이블 이름이 실패 메시지에 나온다)'
 );
 
+-- 옵션 값은 Postgres가 받는 참 값 표기(true/on/yes/1, 대소문자 무관)를 모두 인정한다
 select is_empty(
   $$ select c.relname::text
        from pg_class c
        join pg_namespace n on n.oid = c.relnamespace
       where n.nspname = 'public'
-        and c.relkind in ('v', 'm')
+        and c.relkind = 'v'
         and c.relname <> 'public_profiles'
-        and not coalesce(c.reloptions, '{}') && array['security_invoker=true', 'security_invoker=on'] $$,
+        and not exists (
+              select 1 from unnest(coalesce(c.reloptions, '{}')) o
+               where lower(o) in ('security_invoker=true', 'security_invoker=on',
+                                  'security_invoker=yes', 'security_invoker=1')) $$,
   'public의 뷰는 public_profiles를 빼고 모두 security_invoker다(RLS 우회 방지)'
+);
+
+-- 머티리얼라이즈드 뷰는 security_invoker를 걸 수 없고 RLS도 적용되지 않는다. public에는 두지 않는다
+select is_empty(
+  $$ select c.relname::text
+       from pg_class c
+       join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public'
+        and c.relkind = 'm' $$,
+  'public에는 머티리얼라이즈드 뷰가 없다(필요하면 API에 노출되지 않는 스키마에 만든다)'
 );
 
 select * from finish();

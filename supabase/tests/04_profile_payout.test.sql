@@ -17,24 +17,23 @@ insert into auth.users (id, email, email_confirmed_at, aud, role) values
   ('00000000-0000-0000-0000-0000000000a5', 'newbie@postech.ac.kr',   now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-0000000000a6', 'Rejoin@postech.ac.kr',   now(), 'authenticated', 'authenticated');
 
--- 기준 데이터(seed·0009 categories)를 비우고 테스트용 값만 넣는다(트랜잭션이라 끝나면 되돌아간다)
-delete from public.pickup_places; delete from public.zones; delete from public.categories;
-insert into public.zones (id, name, is_active) values (1, '구역A', true), (2, '구역B', true), (3, '폐쇄구역', false);
-insert into public.categories (id, name) values (1, '치킨');
-insert into public.pickup_places (id, zone_id, name) values (1, 1, '로비');
+-- 기준 데이터는 지우지 않는다(로컬 DB의 개발용 행이 참조하면 FK 위반). 겹치지 않는 테스트 전용 id(901~)와 이름을 쓴다
+insert into public.zones (id, name, is_active) values (901, '__t_구역A', true), (902, '__t_구역B', true), (903, '__t_폐쇄구역', false);
+insert into public.categories (id, name) values (901, '__t_치킨');
+insert into public.pickup_places (id, zone_id, name) values (901, 901, '__t_로비');
 insert into public.banned_words (word) values ('나쁜말');
 
 insert into public.profiles (id, nickname, home_zone_id) values
-  ('00000000-0000-0000-0000-0000000000a1', '방장', 1),
-  ('00000000-0000-0000-0000-0000000000a2', '멤버', 1),
-  ('00000000-0000-0000-0000-0000000000a3', '구경꾼', 1),
-  ('00000000-0000-0000-0000-0000000000a4', '나간사람', 1);
+  ('00000000-0000-0000-0000-0000000000a1', '방장', 901),
+  ('00000000-0000-0000-0000-0000000000a2', '멤버', 901),
+  ('00000000-0000-0000-0000-0000000000a3', '구경꾼', 901),
+  ('00000000-0000-0000-0000-0000000000a4', '나간사람', 901);
 
 insert into public.deleted_accounts (email_hash, noshow_count) values
   (encode(extensions.digest('rejoin@postech.ac.kr' || public.email_pepper(), 'sha256'), 'hex'), 2);
 
 insert into public.posts (id, host_id, zone_id, category_id, store_name, pickup_place_id, max_members, member_count, deadline_at) values
-  ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', 1, 1, '치킨집', 1, 4, 2, now() + interval '30 minutes');
+  ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', 901, 901, '치킨집', 901, 4, 2, now() + interval '30 minutes');
 insert into public.participants (post_id, user_id, role, state) values
   ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1', 'host',   'joined'),
   ('20000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a2', 'member', 'joined'),
@@ -47,29 +46,29 @@ set local role authenticated;
 -- ===========================================================================
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a5","email":"newbie@postech.ac.kr","role":"authenticated"}', true);
 
-select throws_ok($$ select public.create_profile('새사람', 1::smallint, false, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 약관 미동의는 INVALID_INPUT');
-select throws_ok($$ select public.create_profile('새사람', 1::smallint, true, null) $$, 'P0001', 'INVALID_INPUT', 'create_profile: EULA 미동의(null)는 INVALID_INPUT');
-select throws_ok($$ select public.create_profile('a', 1::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 1자 닉네임은 INVALID_INPUT');
-select throws_ok($$ select public.create_profile('열세글자닉네임입니다아아아', 1::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 13자 이상 닉네임은 INVALID_INPUT');
-select throws_ok($$ select public.create_profile('hi there', 1::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 공백·특수문자 닉네임은 INVALID_INPUT');
-select throws_ok($$ select public.create_profile('나쁜말쟁이', 1::smallint, true, true) $$, 'P0001', 'BANNED_WORD', 'create_profile: 금칙어 닉네임은 BANNED_WORD');
-select throws_ok($$ select public.create_profile('멤버', 1::smallint, true, true) $$, 'P0001', 'NICKNAME_TAKEN', 'create_profile: 중복 닉네임은 NICKNAME_TAKEN');
-select throws_ok($$ select public.create_profile('새사람', 3::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 비활성 구역은 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('새사람', 901::smallint, false, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 약관 미동의는 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('새사람', 901::smallint, true, null) $$, 'P0001', 'INVALID_INPUT', 'create_profile: EULA 미동의(null)는 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('a', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 1자 닉네임은 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('열세글자닉네임입니다아아아', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 13자 이상 닉네임은 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('hi there', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 공백·특수문자 닉네임은 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('나쁜말쟁이', 901::smallint, true, true) $$, 'P0001', 'BANNED_WORD', 'create_profile: 금칙어 닉네임은 BANNED_WORD');
+select throws_ok($$ select public.create_profile('멤버', 901::smallint, true, true) $$, 'P0001', 'NICKNAME_TAKEN', 'create_profile: 중복 닉네임은 NICKNAME_TAKEN');
+select throws_ok($$ select public.create_profile('새사람', 903::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 비활성 구역은 INVALID_INPUT');
 select throws_ok($$ select public.create_profile('새사람', 99::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 없는 구역은 INVALID_INPUT');
 select throws_ok($$ select public.create_profile('새사람', null, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 구역 null은 INVALID_INPUT');
 
 select is(
   (select format('%s|%s|%s|%s|%s', p.nickname, p.home_zone_id, p.noshow_count,
                  p.verified_at is not null and p.terms_agreed_at is not null and p.eula_agreed_at is not null, p.is_admin)
-     from public.create_profile('  새사람_1 ', 1::smallint, true, true) p),
-  '새사람_1|1|0|t|f',
+     from public.create_profile('  새사람_1 ', 901::smallint, true, true) p),
+  '새사람_1|901|0|t|f',
   'create_profile: 앞뒤 공백을 정리해 저장하고 verified_at·동의 시각을 채운다');
 select ok(public.is_verified_member(), 'create_profile 뒤에는 is_verified_member = true');
-select throws_ok($$ select public.create_profile('또만들기', 1::smallint, true, true) $$, 'P0001', 'INVALID_STATE', 'create_profile: 이미 프로필이 있으면 INVALID_STATE');
+select throws_ok($$ select public.create_profile('또만들기', 901::smallint, true, true) $$, 'P0001', 'INVALID_STATE', 'create_profile: 이미 프로필이 있으면 INVALID_STATE');
 
 -- 탈퇴 기록이 있는 메일로 재가입: noshow_count를 이어 받는다(메일 대소문자 무시)
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a6","email":"rejoin@postech.ac.kr","role":"authenticated"}', true);
-select is((select p.noshow_count from public.create_profile('재가입', 2::smallint, true, true) p), 2::smallint,
+select is((select p.noshow_count from public.create_profile('재가입', 902::smallint, true, true) p), 2::smallint,
           'create_profile: 탈퇴 전 노쇼 횟수를 이어 받는다');
 
 -- ===========================================================================
@@ -80,13 +79,13 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select is((select p.nickname from public.update_profile() p), '멤버', 'update_profile: 인자가 모두 null이면 그대로 돌려준다');
 select is(
   (select format('%s|%s|%s|%s|%s', p.nickname, p.home_zone_id, p.notify_chat, p.notify_post_events, p.notify_marketing)
-     from public.update_profile(nickname => '새멤버', home_zone_id => 2::smallint, notify_chat => false, notify_marketing => true) p),
-  '새멤버|2|f|t|t', 'update_profile: 준 값만 바꾼다');
+     from public.update_profile(nickname => '새멤버', home_zone_id => 902::smallint, notify_chat => false, notify_marketing => true) p),
+  '새멤버|902|f|t|t', 'update_profile: 준 값만 바꾼다');
 select is((select p.nickname from public.update_profile(nickname => '새멤버') p), '새멤버', 'update_profile: 자기 닉네임 그대로는 중복이 아니다');
 select throws_ok($$ select public.update_profile(nickname => '방장') $$, 'P0001', 'NICKNAME_TAKEN', 'update_profile: 남의 닉네임은 NICKNAME_TAKEN');
 select throws_ok($$ select public.update_profile(nickname => '나쁜말') $$, 'P0001', 'BANNED_WORD', 'update_profile: 금칙어는 BANNED_WORD');
 select throws_ok($$ select public.update_profile(nickname => '') $$, 'P0001', 'INVALID_INPUT', 'update_profile: 빈 닉네임은 INVALID_INPUT');
-select throws_ok($$ select public.update_profile(home_zone_id => 3::smallint) $$, 'P0001', 'INVALID_INPUT', 'update_profile: 비활성 구역은 INVALID_INPUT');
+select throws_ok($$ select public.update_profile(home_zone_id => 903::smallint) $$, 'P0001', 'INVALID_INPUT', 'update_profile: 비활성 구역은 INVALID_INPUT');
 select is((select p.nickname from public.update_profile(nickname => 'Mate') p), 'Mate', 'update_profile: 영문 닉네임으로 바꾼다');
 
 -- ===========================================================================
