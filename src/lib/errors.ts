@@ -100,10 +100,32 @@ function readMessage(e: unknown): string {
   return typeof e === 'string' ? e : '';
 }
 
+function readCode(e: unknown): string {
+  if (e && typeof e === 'object' && 'code' in e) {
+    const c = (e as { code?: unknown }).code;
+    if (typeof c === 'string') return c;
+  }
+  return '';
+}
+
+/** GoTrue(Auth)가 에러와 함께 주는 안정적인 `code` 값 → 앱 에러 코드 */
+const AUTH_CODE_MAP: Readonly<Record<string, AppErrorCode>> = {
+  email_not_confirmed: 'EMAIL_NOT_CONFIRMED',
+  invalid_credentials: 'INVALID_CREDENTIALS',
+  otp_expired: 'INVALID_OTP',
+  otp_disabled: 'INVALID_OTP',
+  weak_password: 'WEAK_PASSWORD',
+  captcha_failed: 'CAPTCHA_FAILED',
+  over_email_send_rate_limit: 'EMAIL_RATE_LIMITED',
+  over_request_rate_limit: 'EMAIL_RATE_LIMITED',
+  over_sms_send_rate_limit: 'EMAIL_RATE_LIMITED',
+  user_banned: 'SANCTIONED',
+};
+
 /**
  * supabase-js 에러(Postgrest, Auth, 네트워크)를 AppError로 바꾼다.
- * Auth 에러 문자열은 supabase-js 버전에 따라 달라질 수 있어 소문자 부분 일치로 판별한다.
- * 실제 문구는 CL3에서 실측해 보정한다.
+ * 순서: 서버 RPC 코드 → Auth `code` → 문구 부분 일치(구버전·훅 에러 대비).
+ * Auth 문구는 supabase-js·GoTrue 버전에 따라 달라질 수 있어 `code`를 먼저 본다.
  */
 export function toAppError(e: unknown): AppError {
   if (e instanceof AppError) return e;
@@ -111,7 +133,17 @@ export function toAppError(e: unknown): AppError {
   const message = readMessage(e).trim();
   if (isErrorCode(message)) return new AppError(message, e);
 
+  const mapped = AUTH_CODE_MAP[readCode(e)];
+  if (mapped) return new AppError(mapped, e);
+
   const lower = message.toLowerCase();
+
+  // Before User Created hook이 돌려주는 문구(아키텍처 §3-1). 'postech' 부분 일치보다 먼저 본다.
+  if (message.includes('이용이 제한된 계정')) return new AppError('SANCTIONED', e);
+  if (message.includes('POSTECH 메일') || lower.includes('@postech.ac.kr')) {
+    return new AppError('EMAIL_DOMAIN', e);
+  }
+
   if (lower.includes('email not confirmed')) return new AppError('EMAIL_NOT_CONFIRMED', e);
   if (lower.includes('invalid login credentials')) return new AppError('INVALID_CREDENTIALS', e);
   if (
@@ -131,10 +163,13 @@ export function toAppError(e: unknown): AppError {
   if (lower.includes('rate limit') || lower.includes('only request this after')) {
     return new AppError('EMAIL_RATE_LIMITED', e);
   }
-  if (lower.includes('postech') || lower.includes('domain')) return new AppError('EMAIL_DOMAIN', e);
-  // hook(§3-1)의 두 번째 거절: 정지 기간이 남은 채 탈퇴한 메일로 재가입
-  if (message.includes('이용이 제한된 계정')) return new AppError('SANCTIONED', e);
-  if (lower.includes('network') || lower.includes('failed to fetch') || lower.includes('timeout')) {
+  if (lower.includes('domain')) return new AppError('EMAIL_DOMAIN', e);
+  if (
+    lower.includes('network') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('timeout') ||
+    lower.includes('fetch failed')
+  ) {
     return new AppError('NETWORK', e);
   }
   return new AppError('UNKNOWN', e);
