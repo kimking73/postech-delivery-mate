@@ -13,7 +13,7 @@ import { resolveGuardTarget } from '@/features/auth/schema';
 import { useMe } from '@/features/profile/hooks';
 import { errorMessage } from '@/lib/errors';
 import { queryClient } from '@/lib/queryClient';
-import { supabase, USE_MOCK } from '@/lib/supabase';
+import { CONFIG_ERROR, supabase, USE_MOCK } from '@/lib/supabase';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -59,6 +59,23 @@ function ProfileLoadError({
       <Pressable accessibilityRole="button" onPress={onSignOut} className="px-6 py-2">
         <Text className="text-gray-500">로그아웃</Text>
       </Pressable>
+    </View>
+  );
+}
+
+/**
+ * 출시용 빌드가 목 모드로 켜지는 설정 오류 화면. 가짜 데이터로 정상처럼 보이지 않게 막는다.
+ * 문구·디자인은 P1·P2가 다듬는다.
+ */
+function ConfigErrorScreen({ message }: { message: string }) {
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => {});
+  }, []);
+  return (
+    <View className="flex-1 items-center justify-center gap-3 bg-white p-6">
+      <Text className="text-center text-base text-black">앱 설정에 문제가 있어요.</Text>
+      <Text className="text-center text-sm text-gray-500">{message}</Text>
+      <StatusBar style="dark" />
     </View>
   );
 }
@@ -124,6 +141,7 @@ function AuthGate() {
 
 // NOTE: 채팅 재구독·놓친 메시지 채우기(CL5), 알림 탭 이동(CL6), 딥링크(CL8, P5)는 이 파일에 이어 붙인다.
 export default function RootLayout() {
+  if (CONFIG_ERROR) return <ConfigErrorScreen message={CONFIG_ERROR} />;
   return (
     <QueryClientProvider client={queryClient}>
       <AuthGate />
