@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(9);
+select plan(14);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
@@ -63,6 +63,31 @@ select lives_ok($$ delete from auth.users where id = '00000000-0000-0000-0000-00
                 '이미 익명화한 사용자도 auth 삭제가 성공한다');
 select is((select nickname from public.profiles where id = '00000000-0000-0000-0000-0000000000d2'), '탈퇴_이미바꿈',
           '이미 익명화한 프로필의 닉네임은 그대로 둔다');
+
+-- 대체 닉네임이 이미 쓰이고 있어도 삭제가 성공한다(0011: 무작위 값으로 다시 시도)
+--   d4는 id 앞 9자가 d1과 같아 '탈퇴_000000000'(위에서 d1이 차지)과 자연스럽게 겹친다
+--   e1은 예약 전에 남이 대체 닉네임을 선점한 경우
+insert into auth.users (id, email, email_confirmed_at, aud, role) values
+  ('00000000-0000-0000-0000-0000000000d4', 'gone4@postech.ac.kr', now(), 'authenticated', 'authenticated'),
+  ('abcdef01-0000-0000-0000-0000000000e1', 'victim@postech.ac.kr', now(), 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000e2', 'squat@postech.ac.kr',  now(), 'authenticated', 'authenticated');
+insert into public.profiles (id, nickname) values
+  ('00000000-0000-0000-0000-0000000000d4', '떠난사람4'),
+  ('abcdef01-0000-0000-0000-0000000000e1', '피해자'),
+  ('00000000-0000-0000-0000-0000000000e2', '탈퇴_abcdef010');
+
+select lives_ok($$ delete from auth.users where id = '00000000-0000-0000-0000-0000000000d4' $$,
+                '대체 닉네임이 자연스럽게 겹쳐도 auth 삭제가 성공한다');
+select ok((select nickname like '탈퇴\_%' and nickname <> '탈퇴_000000000' and char_length(nickname) = 12
+             from public.profiles where id = '00000000-0000-0000-0000-0000000000d4'),
+          '겹치면 다른 12자 대체 닉네임을 받는다');
+select lives_ok($$ delete from auth.users where id = 'abcdef01-0000-0000-0000-0000000000e1' $$,
+                '대체 닉네임을 남이 선점해도 auth 삭제가 성공한다');
+select is((select count(*)::int from public.profiles
+            where id = 'abcdef01-0000-0000-0000-0000000000e1' and deleted_at is not null and nickname like '탈퇴\_%'), 1,
+          '선점당한 사용자도 익명화된다');
+select is((select nickname from public.profiles where id = '00000000-0000-0000-0000-0000000000e2'), '탈퇴_abcdef010',
+          '선점한 쪽 닉네임은 그대로다');
 
 select * from finish();
 rollback;

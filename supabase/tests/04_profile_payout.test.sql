@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(46);
+select plan(48);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
@@ -51,6 +51,7 @@ select throws_ok($$ select public.create_profile('새사람', 901::smallint, tru
 select throws_ok($$ select public.create_profile('a', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 1자 닉네임은 INVALID_INPUT');
 select throws_ok($$ select public.create_profile('열세글자닉네임입니다아아아', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 13자 이상 닉네임은 INVALID_INPUT');
 select throws_ok($$ select public.create_profile('hi there', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 공백·특수문자 닉네임은 INVALID_INPUT');
+select throws_ok($$ select public.create_profile('탈퇴_abc', 901::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 탈퇴_ 접두사는 예약어라 INVALID_INPUT');
 select throws_ok($$ select public.create_profile('나쁜말쟁이', 901::smallint, true, true) $$, 'P0001', 'BANNED_WORD', 'create_profile: 금칙어 닉네임은 BANNED_WORD');
 select throws_ok($$ select public.create_profile('멤버', 901::smallint, true, true) $$, 'P0001', 'NICKNAME_TAKEN', 'create_profile: 중복 닉네임은 NICKNAME_TAKEN');
 select throws_ok($$ select public.create_profile('새사람', 903::smallint, true, true) $$, 'P0001', 'INVALID_INPUT', 'create_profile: 비활성 구역은 INVALID_INPUT');
@@ -84,6 +85,7 @@ select is(
 select is((select p.nickname from public.update_profile(nickname => '새멤버') p), '새멤버', 'update_profile: 자기 닉네임 그대로는 중복이 아니다');
 select throws_ok($$ select public.update_profile(nickname => '방장') $$, 'P0001', 'NICKNAME_TAKEN', 'update_profile: 남의 닉네임은 NICKNAME_TAKEN');
 select throws_ok($$ select public.update_profile(nickname => '나쁜말') $$, 'P0001', 'BANNED_WORD', 'update_profile: 금칙어는 BANNED_WORD');
+select throws_ok($$ select public.update_profile(nickname => '탈퇴_abcdef010') $$, 'P0001', 'INVALID_INPUT', 'update_profile: 탈퇴_ 접두사는 예약어라 INVALID_INPUT');
 select throws_ok($$ select public.update_profile(nickname => '') $$, 'P0001', 'INVALID_INPUT', 'update_profile: 빈 닉네임은 INVALID_INPUT');
 select throws_ok($$ select public.update_profile(home_zone_id => 903::smallint) $$, 'P0001', 'INVALID_INPUT', 'update_profile: 비활성 구역은 INVALID_INPUT');
 select is((select p.nickname from public.update_profile(nickname => 'Mate') p), 'Mate', 'update_profile: 영문 닉네임으로 바꾼다');
