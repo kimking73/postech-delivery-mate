@@ -1394,6 +1394,7 @@
         "supabase/tests/**",
         "supabase/seed.sql",
         "supabase/config.toml",
+        "supabase/templates/**",
         "supabase/functions/delete-account/**",
         "supabase/functions/admin-alert/**",
         "src/types/database.ts"
@@ -1539,7 +1540,8 @@
         "Edge Function delete-account: 익명화, 메일 해시 90일 보관, auth 삭제",
         "Edge Function admin-alert: reports → Slack (Slack 웹훅 직접 호출, 푸시 파이프라인과 무관)",
         "관심 카테고리 구독 RPC와 새 글 알림 — 푸시 발송 연결은 SV8 머지 후",
-        "delete-account: payout_accounts 행 즉시 삭제"
+        "delete-account: payout_accounts 행 즉시 삭제",
+        "delete-account: deleted_accounts.blocked_until 기록(유효한 suspend의 ends_at 최댓값, ban은 infinity). 90일 정리 cron은 blocked_until > now() 행을 남김(아키텍처 §2-2, PR #15). 구현 전까지 정지 사용자가 탈퇴 후 재가입 가능"
       ],
       "out": [
         "moderation RPC",

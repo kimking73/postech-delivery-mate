@@ -4,18 +4,19 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(42);
+select plan(44);
 
 -- ---------------------------------------------------------------------------
 -- 준비(postgres 권한)
---   a: 방장, b: 멤버, c: 나간 사람·p3 방장, x: 관리자, e: 메일 미인증(프로필 없음)
+--   a: 방장, b: 멤버, c: 나간 사람·p3 방장, x: 관리자, e: 메일 미인증(프로필 없음), n: 메일 인증 완료·프로필 없음
 -- ---------------------------------------------------------------------------
 insert into auth.users (id, email, email_confirmed_at, aud, role) values
   ('00000000-0000-0000-0000-00000000000a', 'host@postech.ac.kr',    now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000000b', 'member@postech.ac.kr',  now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-00000000000c', 'outsider@postech.ac.kr', now(), 'authenticated', 'authenticated'),
   ('00000000-0000-0000-0000-0000000000ad', 'admin@postech.ac.kr',   now(), 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-00000000000e', 'pending@postech.ac.kr', null,  'authenticated', 'authenticated');
+  ('00000000-0000-0000-0000-00000000000e', 'pending@postech.ac.kr', null,  'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-00000000000f', 'newbie@postech.ac.kr',  now(), 'authenticated', 'authenticated');
 
 insert into public.profiles (id, nickname, noshow_count, is_admin) values
   ('00000000-0000-0000-0000-00000000000a', 'host',     0, false),
@@ -23,14 +24,15 @@ insert into public.profiles (id, nickname, noshow_count, is_admin) values
   ('00000000-0000-0000-0000-00000000000c', 'outsider', 1, false),
   ('00000000-0000-0000-0000-0000000000ad', 'admin',    3, true);
 
-insert into public.zones (id, name) values (1, '테스트구역');
-insert into public.categories (id, name) values (1, '치킨');
-insert into public.pickup_places (id, zone_id, name) values (1, 1, '로비');
+-- 기준 데이터는 지우지 않는다(로컬 DB의 개발용 행이 참조하면 FK 위반). 겹치지 않는 테스트 전용 id(901~)와 이름을 쓴다
+insert into public.zones (id, name) values (901, '__t_구역');
+insert into public.categories (id, name) values (901, '__t_치킨');
+insert into public.pickup_places (id, zone_id, name) values (901, 901, '__t_로비');
 
 insert into public.posts (id, host_id, zone_id, category_id, store_name, pickup_place_id, max_members, member_count, deadline_at, hidden_at) values
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 1, 1, '공개글', 1, 4, 2, now() + interval '30 minutes', null),
-  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', 1, 1, '숨김글', 1, 4, 2, now() + interval '30 minutes', now()),
-  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000c', 1, 1, 'c의글',  1, 4, 1, now() + interval '30 minutes', null);
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 901, 901, '공개글', 901, 4, 2, now() + interval '30 minutes', null),
+  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000a', 901, 901, '숨김글', 901, 4, 2, now() + interval '30 minutes', now()),
+  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-00000000000c', 901, 901, 'c의글',  901, 4, 1, now() + interval '30 minutes', null);
 
 insert into public.participants (post_id, user_id, role, state) values
   ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000a', 'host',   'joined'),
@@ -61,8 +63,8 @@ insert into public.push_tokens (user_id, expo_token, platform) values
   ('00000000-0000-0000-0000-00000000000a', 'ExponentPushToken[a]', 'ios'),
   ('00000000-0000-0000-0000-00000000000b', 'ExponentPushToken[b]', 'android');
 insert into public.category_subscriptions (user_id, zone_id, category_id) values
-  ('00000000-0000-0000-0000-00000000000a', 1, 1),
-  ('00000000-0000-0000-0000-00000000000b', 1, 1);
+  ('00000000-0000-0000-0000-00000000000a', 901, 901),
+  ('00000000-0000-0000-0000-00000000000b', 901, 901);
 insert into public.banned_words (word) values ('나쁜말');
 insert into public.rate_events (user_id, action) values ('00000000-0000-0000-0000-00000000000b', 't');
 
@@ -96,6 +98,13 @@ select is(array(select t from rls_counts where n > 0), '{}'::text[], '토큰 없
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000e","email":"pending@postech.ac.kr","role":"authenticated"}', true);
 select is(array(select t from rls_counts where n > 0), '{}'::text[], '메일 미인증 토큰: 모든 테이블 0건');
 
+-- 메일 인증은 마쳤지만 프로필이 없는 사용자(profile-setup 화면): 기준 데이터만 읽는다
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","email":"newbie@postech.ac.kr","role":"authenticated"}', true);
+select is(array(select t from rls_counts where n > 0 order by t), array['categories', 'pickup_places', 'zones'],
+  '프로필 없는 인증 사용자: zones·pickup_places·categories만 읽는다(구역을 골라 create_profile 가능)');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000f","email":"newbie+2@postech.ac.kr","role":"authenticated"}', true);
+select is(array(select t from rls_counts where n > 0), '{}'::text[], 'plus 주소(+) 메일 토큰: 모든 테이블 0건');
+
 -- hook 누락 사고 가정: 프로필까지 있는 사용자지만 JWT 메일이 POSTECH가 아니다
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","email":"member@gmail.com","role":"authenticated"}', true);
 select is(array(select t from rls_counts where n > 0), '{}'::text[], 'POSTECH가 아닌 메일 토큰: 모든 테이블 0건');
@@ -105,14 +114,14 @@ select is(array(select t from rls_counts where n > 0), '{}'::text[], 'POSTECH가
 -- ===========================================================================
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","email":"member@postech.ac.kr","role":"authenticated"}', true);
 
-select is((select count(*)::int from public.zones), 1, 'zones: 인증된 회원은 읽는다');
-select is((select count(*)::int from public.categories), 1, 'categories: 인증된 회원은 읽는다');
-select is((select count(*)::int from public.pickup_places), 1, 'pickup_places: 인증된 회원은 읽는다');
+select is((select count(*)::int from public.zones where id = 901), 1, 'zones: 인증된 회원은 읽는다');
+select is((select count(*)::int from public.categories where id = 901), 1, 'categories: 인증된 회원은 읽는다');
+select is((select count(*)::int from public.pickup_places where id = 901), 1, 'pickup_places: 인증된 회원은 읽는다');
 
 select is(array(select id::text from public.profiles), array['00000000-0000-0000-0000-00000000000b'],
           'profiles: 테이블은 자기 행만 보인다');
-select is((select count(*)::int from public.public_profiles), 4, 'public_profiles: 다른 회원 프로필은 뷰로 보인다');
-select is(array(select nickname || ':' || noshow_level from public.public_profiles order by nickname),
+select is((select count(*)::int from public.public_profiles where id::text like '00000000-0000-0000-0000-%'), 4, 'public_profiles: 다른 회원 프로필은 뷰로 보인다');
+select is(array(select nickname || ':' || noshow_level from public.public_profiles where id::text like '00000000-0000-0000-0000-%' order by nickname),
           array['admin:many', 'host:none', 'member:none', 'outsider:some'],
           'public_profiles: noshow_level은 0 none / 1~2 some / 3+ many');
 select is(array(select column_name::text from information_schema.columns
@@ -170,7 +179,7 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select throws_ok($$ update public.profiles set is_admin = true where id = '00000000-0000-0000-0000-00000000000b' $$,
                  '42501', null, 'profiles: 본인 행이라도 직접 UPDATE 불가(is_admin 상승 차단)');
 select throws_ok($$ insert into public.posts (host_id, zone_id, category_id, store_name, pickup_place_id, max_members, deadline_at)
-                    values ('00000000-0000-0000-0000-00000000000b', 1, 1, 'x', 1, 2, now() + interval '20 minutes') $$,
+                    values ('00000000-0000-0000-0000-00000000000b', 901, 901, 'x', 901, 2, now() + interval '20 minutes') $$,
                  '42501', null, 'posts: 직접 INSERT 불가');
 select throws_ok($$ update public.participants set paid_state = 'confirmed' where user_id = '00000000-0000-0000-0000-00000000000b' $$,
                  '42501', null, 'participants: 직접 UPDATE 불가');
