@@ -3,13 +3,31 @@ import { z } from 'zod';
 import { LIMITS } from '@/constants/limits';
 
 export const POSTECH_DOMAIN = '@postech.ac.kr';
+/** 서버 is_postech_email(0009)과 같은 규칙. '+' 주소는 한 사람이 여러 계정을 만들 수 있어 막는다. */
+export const POSTECH_EMAIL_PATTERN = /^[a-z0-9._%-]+@postech\.ac\.kr$/;
 
+/**
+ * 메일 검사는 한 번에 메시지 하나만 낸다: 기본 형식 → 도메인 → '+' 및 허용 문자 순서.
+ * (refine을 여러 개 이으면 앞 검사가 실패해도 뒤 검사가 돌아 메시지가 겹친다.)
+ */
 export const emailSchema = z
   .string()
   .trim()
   .toLowerCase()
-  .email('메일 형식이 올바르지 않아요.')
-  .refine((v) => v.endsWith(POSTECH_DOMAIN), 'POSTECH 메일(@postech.ac.kr)로만 가입할 수 있어요.');
+  .superRefine((v, ctx) => {
+    const fail = (message: string) => ctx.addIssue({ code: 'custom', message });
+    if (!/^[^\s@]+@[^\s@]+$/.test(v)) return fail('메일 형식이 올바르지 않아요.');
+    if (!v.endsWith(POSTECH_DOMAIN)) {
+      return fail('POSTECH 메일(@postech.ac.kr)로만 가입할 수 있어요.');
+    }
+    if (!POSTECH_EMAIL_PATTERN.test(v)) {
+      return fail(
+        v.includes('+')
+          ? '+ 없이 POSTECH 메일 주소 그대로 입력해 주세요.'
+          : '메일 형식이 올바르지 않아요.',
+      );
+    }
+  });
 
 /** 아키텍처 §3-2: 최소 8자, 영문과 숫자 필수 */
 export const passwordSchema = z
